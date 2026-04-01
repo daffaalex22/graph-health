@@ -280,27 +280,6 @@ export function TrendsScreen() {
       <Header title="GraphHealth" />
       <div className="space-y-4 px-4">
         <TrendsChart />
-
-        <section className="rounded-[24px] bg-white/88 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xl font-semibold text-slate-900">Blood Pressure</p>
-              <p className="mt-1 text-sm text-slate-500">Last 5 Days</p>
-            </div>
-            <StatusBadge>RA 1445</StatusBadge>
-          </div>
-          <button className="mt-4 w-full rounded-full bg-cyan-600 px-5 py-4 text-base font-semibold text-white shadow-[0_18px_34px_rgba(8,145,178,0.24)]">
-            Share with Doctor
-          </button>
-        </section>
-
-        <section className="rounded-[24px] bg-white/88 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
-          <div className="flex items-center justify-between">
-            <p className="text-xl font-semibold text-slate-900">Trends</p>
-            <span className="text-xs text-slate-400">9:00</span>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-slate-600">testi nt Warmeal</p>
-        </section>
       </div>
     </div>
   );
