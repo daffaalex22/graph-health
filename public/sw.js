@@ -26,6 +26,15 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+   // Avoid caching App Router payloads, dev assets, and document navigations.
+  const isNavigation = event.request.mode === "navigate";
+  const isAppData = requestUrl.pathname.startsWith("/_next/");
+  const isApi = requestUrl.pathname.startsWith("/api/");
+
+  if (isNavigation || isAppData || isApi) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const networkFetch = fetch(event.request)
