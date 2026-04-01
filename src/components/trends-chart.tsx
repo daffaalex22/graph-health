@@ -163,11 +163,8 @@ export function TrendsChart() {
   return (
     <div className="rounded-[28px] bg-white/88 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-2xl font-semibold text-slate-900">Blood Pressure Trend</p>
-          <p className="mt-1 text-sm text-slate-500">Draggable timeline</p>
-        </div>
-        <span className="text-sm text-slate-400">RA 1445</span>
+        <p className="text-2xl font-semibold text-slate-900">Blood Pressure Trend</p>
+        <span className="text-sm text-slate-300">Placeholder</span>
       </div>
 
       <div
@@ -231,8 +228,11 @@ export function TrendsChart() {
 
       <div className="mt-4 flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-slate-900">{selectedPoint.date}</p>
-          <p className="mt-1 text-[11px] text-slate-400">Drag the chart left or right to explore the timeline</p>
+          <p className="text-[11px] leading-4 text-slate-400">
+            Drag the chart left or right
+            <br />
+            to explore the timeline
+          </p>
         </div>
         <div className="flex gap-1">
           {viewportPoints.map((point, index) => (
