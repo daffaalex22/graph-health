@@ -5,23 +5,22 @@ import { useEffect, useMemo, useRef, useState } from "react";
 type ReadingPoint = {
   date: string;
   shortLabel: string;
-  value: number;
-  reading: string;
-  risk: string;
+  systolic: number;
+  diastolic: number;
 };
 
 const chartData: ReadingPoint[] = [
-  { date: "Apr 28", shortLabel: "Apr 28", value: 134, reading: "134 / 86", risk: "Stable" },
-  { date: "Apr 29", shortLabel: "Apr 29", value: 136, reading: "136 / 88", risk: "Stable" },
-  { date: "Apr 30", shortLabel: "Apr 30", value: 137, reading: "137 / 88", risk: "Watch" },
-  { date: "May 1", shortLabel: "May 1", value: 140, reading: "140 / 92", risk: "Watch" },
-  { date: "May 2", shortLabel: "May 2", value: 142, reading: "142 / 92", risk: "Rising" },
-  { date: "May 3", shortLabel: "May 3", value: 144, reading: "144 / 93", risk: "Rising" },
-  { date: "May 4", shortLabel: "May 4", value: 146, reading: "146 / 94", risk: "High" },
-  { date: "May 5", shortLabel: "May 5", value: 148, reading: "148 / 95", risk: "High" },
-  { date: "May 6", shortLabel: "May 6", value: 145, reading: "145 / 93", risk: "Improving" },
-  { date: "May 7", shortLabel: "May 7", value: 141, reading: "141 / 90", risk: "Improving" },
-  { date: "May 8", shortLabel: "May 8", value: 139, reading: "139 / 89", risk: "Stable" },
+  { date: "Apr 28", shortLabel: "Apr 28", systolic: 118, diastolic: 76 },
+  { date: "Apr 29", shortLabel: "Apr 29", systolic: 126, diastolic: 78 },
+  { date: "Apr 30", shortLabel: "Apr 30", systolic: 136, diastolic: 88 },
+  { date: "May 1", shortLabel: "May 1", systolic: 140, diastolic: 92 },
+  { date: "May 2", shortLabel: "May 2", systolic: 142, diastolic: 92 },
+  { date: "May 3", shortLabel: "May 3", systolic: 144, diastolic: 93 },
+  { date: "May 4", shortLabel: "May 4", systolic: 146, diastolic: 94 },
+  { date: "May 5", shortLabel: "May 5", systolic: 148, diastolic: 95 },
+  { date: "May 6", shortLabel: "May 6", systolic: 145, diastolic: 93 },
+  { date: "May 7", shortLabel: "May 7", systolic: 141, diastolic: 90 },
+  { date: "May 8", shortLabel: "May 8", systolic: 139, diastolic: 89 },
 ];
 
 const LEFT_PAD = 24;
@@ -32,17 +31,44 @@ const CHART_HEIGHT = 168;
 const POINT_GAP = 72;
 const VISIBLE_POINT_COUNT = 5;
 
-function describeRisk(risk: string) {
-  if (risk === "High") {
-    return "text-rose-500 bg-rose-50";
+function getCategory(point: ReadingPoint) {
+  if (point.systolic > 180 || point.diastolic > 120) {
+    return "Crisis";
   }
 
-  if (risk === "Rising" || risk === "Watch") {
+  if (point.systolic >= 140 || point.diastolic >= 90) {
+    return "Stage 2";
+  }
+
+  if (
+    (point.systolic >= 130 && point.systolic <= 139) ||
+    (point.diastolic >= 80 && point.diastolic <= 89)
+  ) {
+    return "Stage 1";
+  }
+
+  if (point.systolic >= 120 && point.systolic <= 129 && point.diastolic < 80) {
+    return "Elevated";
+  }
+
+  return "Normal";
+}
+
+function describeCategory(category: string) {
+  if (category === "Crisis") {
+    return "text-red-700 bg-red-50";
+  }
+
+  if (category === "Stage 2") {
+    return "text-rose-600 bg-rose-50";
+  }
+
+  if (category === "Stage 1") {
+    return "text-orange-600 bg-orange-50";
+  }
+
+  if (category === "Elevated") {
     return "text-amber-600 bg-amber-50";
-  }
-
-  if (risk === "Improving") {
-    return "text-cyan-700 bg-cyan-50";
   }
 
   return "text-emerald-700 bg-emerald-50";
@@ -57,11 +83,12 @@ export function TrendsChart() {
   const isDragging = useRef(false);
 
   const selectedPoint = chartData[selectedIndex] ?? chartData[0];
+  const selectedCategory = getCategory(selectedPoint);
   const chartWidth = LEFT_PAD + RIGHT_PAD + POINT_GAP * Math.max(chartData.length - 1, 1);
   const maxWindowStart = Math.max(chartData.length - VISIBLE_POINT_COUNT, 0);
 
   const points = useMemo(() => {
-    const values = chartData.map((point) => point.value);
+    const values = chartData.map((point) => point.systolic);
     const minValue = Math.min(...values) - 4;
     const maxValue = Math.max(...values) + 4;
     const innerHeight = CHART_HEIGHT - TOP_PAD - BOTTOM_PAD;
@@ -69,7 +96,7 @@ export function TrendsChart() {
     return chartData.map((point, index) => {
       const x = LEFT_PAD + POINT_GAP * index;
       const y =
-        TOP_PAD + ((maxValue - point.value) / Math.max(maxValue - minValue, 1)) * innerHeight;
+        TOP_PAD + ((maxValue - point.systolic) / Math.max(maxValue - minValue, 1)) * innerHeight;
 
       return {
         ...point,
@@ -248,12 +275,14 @@ export function TrendsChart() {
         <div>
           <p className="text-xs uppercase tracking-[0.14em] text-slate-400">Selected Point</p>
           <div className="mt-1 flex items-baseline gap-2">
-            <p className="text-lg font-semibold text-slate-900">{selectedPoint.reading}</p>
+            <p className="text-lg font-semibold text-slate-900">
+              {selectedPoint.systolic} / {selectedPoint.diastolic}
+            </p>
             <span className="text-xs text-slate-400">{selectedPoint.date}</span>
           </div>
         </div>
-        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${describeRisk(selectedPoint.risk)}`}>
-          {selectedPoint.risk}
+        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${describeCategory(selectedCategory)}`}>
+          {selectedCategory}
         </span>
       </div>
     </div>
