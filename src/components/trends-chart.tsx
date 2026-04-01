@@ -207,7 +207,7 @@ export function TrendsChart() {
                     cx={point.x}
                     cy={point.y}
                     r={isSelected ? 7 : 5}
-                    fill="#fff"
+                    fill={isSelected ? "#ef5a72" : "#fff"}
                     stroke="#ef5a72"
                     strokeWidth="3"
                     className="cursor-pointer"
