@@ -326,3 +326,35 @@ export function TrendsScreen() {
     </div>
   );
 }
+
+export function HistoryScreen() {
+  return (
+    <div className="pb-28">
+      <Header title="GraphHealth" />
+      <div className="space-y-4 px-4">
+        <section className="rounded-[28px] bg-white/88 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-2xl font-semibold text-slate-900">History</p>
+              <p className="mt-1 text-sm text-slate-500">Previous health activity</p>
+            </div>
+            <StatusBadge tone="emerald">Synced</StatusBadge>
+          </div>
+          <div className="mt-5 space-y-3">
+            {[
+              { title: "Blood pressure uploaded", meta: "Today, 8:45 AM", detail: "148 / 95 confirmed" },
+              { title: "Medication logged", meta: "Yesterday, 8:10 PM", detail: "Evening dose missed" },
+              { title: "Doctor notified", meta: "Yesterday, 8:52 PM", detail: "BP trend summary sent" },
+            ].map((item) => (
+              <div key={item.title} className="rounded-[22px] bg-slate-50 p-4">
+                <p className="text-base font-semibold text-slate-900">{item.title}</p>
+                <p className="mt-1 text-sm text-slate-500">{item.meta}</p>
+                <p className="mt-3 text-sm text-slate-600">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}

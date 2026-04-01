@@ -24,10 +24,10 @@ type IconName =
 
 const tabs: Array<{ id: TabId; label: string; icon: IconName; href: string }> = [
   { id: "home", label: "Home", icon: "home", href: "/" },
-  { id: "scan", label: "Trends", icon: "trend", href: "/scan" },
-  { id: "reading", label: "Add", icon: "plus", href: "/reading" },
+  { id: "trends", label: "Trends", icon: "trend", href: "/trends" },
+  { id: "scan", label: "Add", icon: "plus", href: "/scan" },
   { id: "insight", label: "Medication", icon: "pill", href: "/insight" },
-  { id: "trends", label: "History", icon: "clock", href: "/trends" },
+  { id: "reading", label: "History", icon: "clock", href: "/history" },
 ];
 
 function cn(...parts: Array<string | false | null | undefined>) {
@@ -204,7 +204,7 @@ function BottomNav() {
       <div className="grid grid-cols-5 items-end gap-1">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;
-          const isCenter = tab.id === "reading";
+          const isCenter = tab.id === "scan";
 
           return (
             <Link
