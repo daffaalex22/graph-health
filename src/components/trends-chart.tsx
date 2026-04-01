@@ -30,6 +30,11 @@ const BOTTOM_PAD = 30;
 const CHART_HEIGHT = 168;
 const POINT_GAP = 72;
 const VISIBLE_POINT_COUNT = 5;
+const CATEGORY_THRESHOLDS = [
+  { label: "120", value: 120 },
+  { label: "130", value: 130 },
+  { label: "140", value: 140 },
+] as const;
 
 function getCategory(point: ReadingPoint) {
   if (point.systolic > 180 || point.diastolic > 120) {
@@ -52,6 +57,26 @@ function getCategory(point: ReadingPoint) {
   }
 
   return "Normal";
+}
+
+function getCategoryColor(category: string) {
+  if (category === "Crisis") {
+    return "#b91c1c";
+  }
+
+  if (category === "Stage 2") {
+    return "#e11d48";
+  }
+
+  if (category === "Stage 1") {
+    return "#ea580c";
+  }
+
+  if (category === "Elevated") {
+    return "#d97706";
+  }
+
+  return "#15803d";
 }
 
 function describeCategory(category: string) {
@@ -107,9 +132,29 @@ export function TrendsChart() {
     });
   }, []);
 
+  const values = chartData.map((point) => point.systolic);
+  const minValue = Math.min(...values) - 4;
+  const maxValue = Math.max(...values) + 4;
+  const innerHeight = CHART_HEIGHT - TOP_PAD - BOTTOM_PAD;
+
+  const thresholdLines = CATEGORY_THRESHOLDS.map((threshold) => ({
+    ...threshold,
+    y:
+      TOP_PAD +
+      ((maxValue - threshold.value) / Math.max(maxValue - minValue, 1)) * innerHeight,
+  })).filter((threshold) => threshold.y >= TOP_PAD && threshold.y <= CHART_HEIGHT - BOTTOM_PAD);
+
   const linePath = points
     .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
     .join(" ");
+
+  const gradientStops = points.map((point) => {
+    const category = getCategory(point);
+    return {
+      offset: `${(point.x / chartWidth) * 100}%`,
+      color: getCategoryColor(category),
+    };
+  });
 
   const viewportStart = Math.min(
     Math.max(Math.round(scrollLeft / POINT_GAP), 0),
@@ -207,16 +252,41 @@ export function TrendsChart() {
       >
         <div className="min-w-full" style={{ width: `${chartWidth}px` }}>
           <svg viewBox={`0 0 ${chartWidth} ${CHART_HEIGHT}`} className="h-44 w-full">
+            <defs>
+              <linearGradient id="bpTrendGradient" x1={LEFT_PAD} y1="0" x2={chartWidth - RIGHT_PAD} y2="0" gradientUnits="userSpaceOnUse">
+                {gradientStops.map((stop) => (
+                  <stop key={stop.offset} offset={stop.offset} stopColor={stop.color} />
+                ))}
+              </linearGradient>
+            </defs>
+            {thresholdLines.map((threshold) => (
+              <g key={threshold.value}>
+                <path
+                  d={`M ${LEFT_PAD} ${threshold.y} H ${chartWidth - RIGHT_PAD}`}
+                  stroke="#cbd5e1"
+                  strokeWidth="1.5"
+                  strokeDasharray="5 6"
+                />
+                <text
+                  x={chartWidth - RIGHT_PAD}
+                  y={threshold.y - 6}
+                  textAnchor="end"
+                  className="fill-slate-300"
+                  style={{ fontSize: "10px", fontWeight: 600 }}
+                >
+                  {threshold.label}
+                </text>
+              </g>
+            ))}
             <path
               d={`M ${LEFT_PAD} ${CHART_HEIGHT - BOTTOM_PAD} H ${chartWidth - RIGHT_PAD}`}
               stroke="#e2e8f0"
               strokeWidth="2"
-              strokeDasharray="4 6"
             />
             <path
               d={linePath}
               fill="none"
-              stroke="#ef5a72"
+              stroke="url(#bpTrendGradient)"
               strokeWidth="4"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -224,6 +294,8 @@ export function TrendsChart() {
 
             {points.map((point) => {
               const isSelected = selectedPoint.date === point.date;
+              const category = getCategory(point);
+              const pointColor = getCategoryColor(category);
 
               return (
                 <g key={point.date}>
@@ -231,8 +303,8 @@ export function TrendsChart() {
                     cx={point.x}
                     cy={point.y}
                     r={isSelected ? 7 : 5}
-                    fill={isSelected ? "#ef5a72" : "#fff"}
-                    stroke="#ef5a72"
+                    fill={isSelected ? pointColor : "#fff"}
+                    stroke={pointColor}
                     strokeWidth="3"
                     className="cursor-pointer"
                     onClick={() => setSelectedIndex(point.index)}
@@ -241,7 +313,8 @@ export function TrendsChart() {
                     x={point.x}
                     y={CHART_HEIGHT - 8}
                     textAnchor="middle"
-                    className={isSelected ? "fill-rose-500" : "fill-slate-400"}
+                    className={isSelected ? "" : "fill-slate-400"}
+                    fill={isSelected ? pointColor : undefined}
                     style={{ fontSize: "11px", fontWeight: isSelected ? 700 : 500 }}
                   >
                     {point.shortLabel}
