@@ -30,6 +30,7 @@ const TOP_PAD = 16;
 const BOTTOM_PAD = 30;
 const CHART_HEIGHT = 168;
 const POINT_GAP = 72;
+const VISIBLE_POINT_COUNT = 5;
 
 function describeRisk(risk: string) {
   if (risk === "High") {
@@ -49,6 +50,7 @@ function describeRisk(risk: string) {
 
 export function TrendsChart() {
   const [selectedIndex, setSelectedIndex] = useState(7);
+  const [scrollLeft, setScrollLeft] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const dragStartX = useRef<number | null>(null);
   const dragStartScroll = useRef(0);
@@ -56,6 +58,7 @@ export function TrendsChart() {
 
   const selectedPoint = chartData[selectedIndex] ?? chartData[0];
   const chartWidth = LEFT_PAD + RIGHT_PAD + POINT_GAP * Math.max(chartData.length - 1, 1);
+  const maxWindowStart = Math.max(chartData.length - VISIBLE_POINT_COUNT, 0);
 
   const points = useMemo(() => {
     const values = chartData.map((point) => point.value);
@@ -81,6 +84,16 @@ export function TrendsChart() {
     .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
     .join(" ");
 
+  const viewportStart = Math.min(
+    Math.max(Math.round(scrollLeft / POINT_GAP), 0),
+    maxWindowStart,
+  );
+  const viewportPoints = chartData.slice(viewportStart, viewportStart + VISIBLE_POINT_COUNT);
+  const activeViewportIndex = Math.min(
+    Math.max(selectedIndex - viewportStart, 0),
+    Math.max(viewportPoints.length - 1, 0),
+  );
+
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) {
@@ -102,6 +115,24 @@ export function TrendsChart() {
       behavior: "smooth",
     });
   }, [points, selectedIndex]);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) {
+      return;
+    }
+
+    const updateScroll = () => {
+      setScrollLeft(container.scrollLeft);
+    };
+
+    updateScroll();
+    container.addEventListener("scroll", updateScroll, { passive: true });
+
+    return () => {
+      container.removeEventListener("scroll", updateScroll);
+    };
+  }, []);
 
   function handlePointerDown(clientX: number) {
     const container = scrollRef.current;
@@ -204,10 +235,10 @@ export function TrendsChart() {
           <p className="mt-1 text-[11px] text-slate-400">Drag the chart left or right to explore the timeline</p>
         </div>
         <div className="flex gap-1">
-          {chartData.map((point, index) => (
+          {viewportPoints.map((point, index) => (
             <span
               key={point.date}
-              className={`h-1.5 w-1.5 rounded-full ${selectedIndex === index ? "bg-rose-500" : "bg-slate-200"}`}
+              className={`h-1.5 w-1.5 rounded-full transition-colors ${activeViewportIndex === index ? "bg-rose-500" : "bg-slate-200"}`}
             />
           ))}
         </div>
