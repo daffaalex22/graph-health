@@ -201,7 +201,6 @@ export function TrendsChart() {
       <div className="mt-4 flex items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-slate-900">{selectedPoint.date}</p>
-          <p className="mt-1 text-xs text-slate-500">{selectedPoint.reading}</p>
           <p className="mt-1 text-[11px] text-slate-400">Drag the chart left or right to explore the timeline</p>
         </div>
         <div className="flex gap-1">
@@ -216,8 +215,11 @@ export function TrendsChart() {
 
       <div className="mt-4 flex items-center justify-between rounded-[20px] bg-slate-50 px-4 py-3">
         <div>
-          <p className="text-xs uppercase tracking-[0.14em] text-slate-400">Selected Reading</p>
-          <p className="mt-1 text-lg font-semibold text-slate-900">{selectedPoint.reading}</p>
+          <p className="text-xs uppercase tracking-[0.14em] text-slate-400">Selected Point</p>
+          <div className="mt-1 flex items-baseline gap-2">
+            <p className="text-lg font-semibold text-slate-900">{selectedPoint.reading}</p>
+            <span className="text-xs text-slate-400">{selectedPoint.date}</span>
+          </div>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${describeRisk(selectedPoint.risk)}`}>
           {selectedPoint.risk}
