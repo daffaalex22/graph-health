@@ -171,35 +171,37 @@ export function StatusBadge({
 
 export function Header({ title, showBack = false }: { title: string; showBack?: boolean }) {
   return (
-    <header className="flex items-center justify-between px-5 pb-4 pt-4">
-      <div className="flex items-center gap-3">
-        {showBack ? (
-          <Link
-            href="/"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-slate-600 shadow-sm ring-1 ring-slate-100"
-          >
-            <Icon name="arrow-left" className="h-5 w-5" />
-          </Link>
-        ) : (
-          <div className="overflow-hidden rounded-full shadow-sm ring-1 ring-[#a31b39]/15">
-            <Image
-              src="/logo.png"
-              alt="GraphHealth logo"
-              width={40}
-              height={40}
-              className="h-10 w-10 object-cover"
-              priority
-            />
+    <header className="sticky top-0 z-40 mb-4 px-4 pt-3">
+      <div className="flex items-center justify-between rounded-[24px] bg-white/84 px-4 py-3 shadow-[0_14px_30px_rgba(15,23,42,0.07)] ring-1 ring-white/85 backdrop-blur-xl">
+        <div className="flex items-center gap-3">
+          {showBack ? (
+            <Link
+              href="/"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-slate-600 shadow-sm ring-1 ring-slate-100"
+            >
+              <Icon name="arrow-left" className="h-5 w-5" />
+            </Link>
+          ) : (
+            <div className="overflow-hidden rounded-full shadow-sm ring-1 ring-[#a31b39]/15">
+              <Image
+                src="/logo.png"
+                alt="GraphHealth logo"
+                width={40}
+                height={40}
+                className="h-10 w-10 object-cover"
+                priority
+              />
+            </div>
+          )}
+          <div>
+            <p className="text-lg font-semibold text-slate-900">{title}</p>
+            <p className="text-xs text-slate-500">GraphHealth</p>
           </div>
-        )}
-        <div>
-          <p className="text-lg font-semibold text-slate-900">{title}</p>
-          <p className="text-xs text-slate-500">GraphHealth</p>
         </div>
+        <button className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-rose-500 shadow-sm ring-1 ring-slate-100">
+          <Icon name="bell" className="h-5 w-5" />
+        </button>
       </div>
-      <button className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-rose-500 shadow-sm ring-1 ring-slate-100">
-        <Icon name="bell" className="h-5 w-5" />
-      </button>
     </header>
   );
 }
@@ -245,7 +247,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#a31b39_0%,#b33a59_12%,#f3edf6_36%,#eff7fc_100%)]">
       <div className="mx-auto min-h-screen w-full max-w-[430px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9),rgba(255,255,255,0)_34%)] shadow-[0_0_0_1px_rgba(255,255,255,0.55)]">
-        <div className="relative min-h-screen overflow-x-hidden">
+        <div className="relative min-h-screen">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.72),rgba(255,255,255,0))]" />
           <div className="relative min-h-screen pb-32">{children}</div>
           <BottomNav />
