@@ -1,26 +1,108 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f3f6fb;
+  --foreground: #102033;
+  --muted: #5d6b7e;
+  --card: rgba(255, 255, 255, 0.76);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-manrope);
+  --font-mono: var(--font-plex-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--background);
+  color: var(--foreground);
+  scroll-behavior: smooth;
 }
 
 body {
+  min-height: 100vh;
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(8, 145, 178, 0.18);
+}
+
+.phone-shell::before {
+  content: "";
+  position: absolute;
+  inset: 14px auto auto 50%;
+  width: 32%;
+  height: 26px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.82);
+  z-index: 4;
+}
+
+.scanner-area {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanner-area::before,
+.scanner-area::after {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border-radius: 24px;
+  border: 4px solid rgba(255, 255, 255, 0.85);
+}
+
+.scanner-area::after {
+  inset: 38px 18px auto;
+  height: 2px;
+  border: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(79, 195, 221, 0.95), rgba(255, 255, 255, 0));
+  box-shadow: 0 0 24px rgba(79, 195, 221, 0.85);
+  animation: scanline 2.6s ease-in-out infinite;
+}
+
+@keyframes scanline {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: translateY(126px);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .phone-shell::before {
+    height: 24px;
+    width: 36%;
+  }
 }
