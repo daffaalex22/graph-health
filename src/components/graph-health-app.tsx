@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -180,8 +181,15 @@ export function Header({ title, showBack = false }: { title: string; showBack?: 
             <Icon name="arrow-left" className="h-5 w-5" />
           </Link>
         ) : (
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-100 text-cyan-700">
-            <span className="text-sm font-bold">GH</span>
+          <div className="overflow-hidden rounded-full shadow-sm ring-1 ring-[#a31b39]/15">
+            <Image
+              src="/logo.png"
+              alt="GraphHealth logo"
+              width={40}
+              height={40}
+              className="h-10 w-10 object-cover"
+              priority
+            />
           </div>
         )}
         <div>

@@ -1,5 +1,5 @@
 const CACHE_NAME = "graphhealth-v1";
-const APP_SHELL = ["/", "/manifest.webmanifest", "/icon-192.svg", "/icon-512.svg", "/apple-touch-icon.svg"];
+const APP_SHELL = ["/", "/manifest.webmanifest", "/logo.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
