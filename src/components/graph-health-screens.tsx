@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Header, Icon, StatusBadge } from "@/components/graph-health-app";
+import { TrendsChart } from "@/components/trends-chart";
 
 export function HomeScreen() {
   return (
@@ -278,29 +279,7 @@ export function TrendsScreen() {
     <div className="pb-28">
       <Header title="GraphHealth" />
       <div className="space-y-4 px-4">
-        <section className="rounded-[28px] bg-white/88 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-2xl font-semibold text-slate-900">Blood Pressure Trend</p>
-              <p className="mt-1 text-sm text-slate-500">Last 5 Days</p>
-            </div>
-            <span className="text-sm text-slate-400">RA 1445</span>
-          </div>
-          <div className="mt-5 h-44 rounded-[24px] bg-[linear-gradient(180deg,#fff7f8_0%,#ffffff_100%)] p-3">
-            <svg viewBox="0 0 300 160" className="h-full w-full">
-              <path d="M12 118 C40 118, 58 116, 80 104 S120 96, 140 88 S178 74, 198 62 S236 40, 286 22" fill="none" stroke="#ef5a72" strokeWidth="4" strokeLinecap="round" />
-              {[80, 140, 198, 240, 286].map((x, index) => (
-                <circle key={x} cx={x} cy={[104, 88, 62, 40, 22][index]} r="5" fill="#fff" stroke="#ef5a72" strokeWidth="3" />
-              ))}
-              <path d="M12 140h276" stroke="#e2e8f0" strokeWidth="2" strokeDasharray="4 6" />
-            </svg>
-          </div>
-          <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
-            <span>May 1</span>
-            <span>15:00</span>
-            <span>140 / 92</span>
-          </div>
-        </section>
+        <TrendsChart />
 
         <section className="rounded-[24px] bg-white/88 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
           <div className="flex items-center justify-between">
