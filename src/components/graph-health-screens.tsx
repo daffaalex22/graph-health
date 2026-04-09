@@ -228,6 +228,10 @@ export function InsightScreen() {
   const rafId = useRef<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [selectedMonth, setSelectedMonth] = useState("May 2026");
+  const [isMonthOpen, setIsMonthOpen] = useState(false);
+
+  const months = ["April 2026", "May 2026"];
 
   const handleScroll = () => {
     if (scrollRef.current) {
@@ -272,32 +276,72 @@ export function InsightScreen() {
     }
   };
 
-  const medicationHistory = Array.from({ length: 11 }, (_, i) => ({
-    day: i + 1,
-    status: "taken",
-    color: i === 3 ? "rose" : "cyan",
-    marker: i === 2 ? "2" : (i === 3 ? "✻" : undefined)
-  }));
+  const trendsDays = [
+    { date: "Apr 28", month: "April 2026", color: "cyan" },
+    { date: "Apr 29", month: "April 2026", color: "cyan" },
+    { date: "Apr 30", month: "April 2026", color: "cyan", marker: "2" },
+    { date: "May 1", month: "May 2026", color: "rose", marker: "✻" },
+    { date: "May 2", month: "May 2026", color: "cyan" },
+    { date: "May 3", month: "May 2026", color: "cyan" },
+    { date: "May 4", month: "May 2026", color: "cyan" },
+    { date: "May 5", month: "May 2026", color: "cyan" },
+    { date: "May 6", month: "May 2026", color: "cyan" },
+    { date: "May 7", month: "May 2026", color: "cyan" },
+    { date: "May 8", month: "May 2026", color: "cyan" },
+  ];
+
+  const medicationHistory = trendsDays.filter(d => d.month === selectedMonth);
 
   return (
     <div className="pb-28">
       <Header title="Medication" />
-      <div className="space-y-5 px-4">
+      <div className="space-y-4 px-4">
         {/* Progress & Medication Card */}
-        <section className="overflow-hidden rounded-[30px] bg-white/94 shadow-[0_20px_50px_rgba(15,23,42,0.12)] ring-1 ring-white/80">
-          <div className="px-5 py-4">
-            <h2 className="text-[1.05rem] font-bold text-slate-800">Progress & Medication</h2>
+        <section className="overflow-hidden rounded-[28px] bg-white/94 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
+          <div className="px-4 py-4">
+            <p className="text-2xl font-semibold text-slate-900">Progress & Medication</p>
           </div>
 
           <div className="mx-2 mb-2 overflow-hidden rounded-[26px] bg-[linear-gradient(180deg,#f0f9ff_0%,#ffffff_100%)] p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.8)] ring-1 ring-slate-100/60">
-            <div className="mb-6 flex items-start justify-between">
+            <div className="mb-7 flex items-end justify-between">
               <div>
-                <h3 className="text-[1.4rem] font-bold tracking-tight text-cyan-950">Amlodipine 5mg</h3>
-                <p className="mt-0.5 text-sm font-medium text-slate-500">Every day</p>
+                <p className="text-xl font-semibold text-slate-900">Amlodipine 5mg</p>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <span className="rounded-full bg-cyan-50 px-2 py-0.5 text-[10px] font-bold text-cyan-600 ring-1 ring-cyan-100/50 uppercase tracking-wider">Every day</span>
+                  <span className="h-1 w-1 rounded-full bg-slate-200" />
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">8:00 AM</p>
+                </div>
               </div>
-              <div className="flex items-center gap-1 rounded-lg bg-slate-200/50 px-2 py-1 shadow-sm backdrop-blur-sm">
-                <div className="h-3.5 w-5 rounded-[3px] bg-slate-300 shadow-inner" />
-                <span className="text-[11px] font-bold text-slate-500">3</span>
+              <div className="relative">
+                <button 
+                  onClick={() => setIsMonthOpen(!isMonthOpen)}
+                  className="flex items-center gap-2 rounded-2xl bg-white px-3.5 py-2 shadow-[0_4px_12px_rgba(0,0,0,0.03)] ring-1 ring-slate-100 active:scale-95 transition-all"
+                >
+                  <span className="text-[13px] font-black text-slate-800 tracking-tight">{selectedMonth}</span>
+                  <div className={cn("text-slate-400 transition-transform duration-300", isMonthOpen ? "rotate-90" : "-rotate-90")}>
+                    <Icon name="arrow-left" className="h-3 w-3" />
+                  </div>
+                </button>
+
+                {isMonthOpen && (
+                  <div className="absolute right-0 top-full z-50 mt-2 w-36 overflow-hidden rounded-2xl bg-white p-1.5 shadow-[0_20px_40px_rgba(15,23,42,0.18)] ring-1 ring-slate-100 backdrop-blur-xl animate-in fade-in zoom-in duration-200">
+                    {months.map(m => (
+                      <button
+                        key={m}
+                        onClick={() => {
+                          setSelectedMonth(m);
+                          setIsMonthOpen(false);
+                        }}
+                        className={cn(
+                          "w-full rounded-xl px-4 py-2 text-left text-[13px] font-bold transition-colors",
+                          selectedMonth === m ? "bg-cyan-50 text-cyan-700" : "text-slate-600 hover:bg-slate-50"
+                        )}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -317,7 +361,7 @@ export function InsightScreen() {
                 {medicationHistory.map((item, i) => (
                   <div key={i} className="flex min-w-[70px] flex-col items-center">
                     <p className="mb-3 whitespace-nowrap text-[13px] font-bold text-slate-400">
-                      Day <span className="text-slate-600 font-extrabold">{item.day}</span>
+                      {item.date}
                     </p>
                     <div className="relative mb-3 flex h-16 w-full items-center justify-center rounded-[20px] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.03)] ring-1 ring-slate-100">
                       <div className={cn(
@@ -335,10 +379,21 @@ export function InsightScreen() {
                         )}
                       </div>
                     </div>
-                    <div className="flex h-6 w-11 items-center justify-center rounded-full bg-cyan-100/70 text-cyan-600 shadow-sm ring-1 ring-cyan-200/50">
-                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3.5">
-                        <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                    <div className={cn(
+                      "flex h-6 w-11 items-center justify-center rounded-full shadow-sm ring-1",
+                      item.color === "cyan" 
+                        ? "bg-cyan-100/70 text-cyan-600 ring-cyan-200/50" 
+                        : "bg-rose-100/70 text-rose-500 ring-rose-200/50"
+                    )}>
+                      {item.color === "cyan" ? (
+                        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3.5">
+                          <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      ) : (
+                        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3.5">
+                          <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -370,10 +425,10 @@ export function InsightScreen() {
 
             <button className="mt-7 flex w-full items-center justify-between rounded-2xl bg-white/60 px-4 py-3.5 text-slate-600 shadow-sm ring-1 ring-slate-100 transition-active active:scale-[0.98]">
               <div className="flex items-center gap-3">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-50 text-cyan-500 ring-1 ring-cyan-100">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-amber-500 ring-1 ring-amber-100/50">
                   <span className="text-xs font-bold leading-none">4</span>
                 </div>
-                <p className="text-[13px] font-semibold text-slate-600">Panat J V-mbak duku!</p>
+                <p className="text-[13px] font-semibold text-slate-600">4 doses remaining. Order refill now.</p>
               </div>
               <svg viewBox="0 0 24 24" className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
@@ -383,28 +438,32 @@ export function InsightScreen() {
         </section>
 
         {/* AI Note Card */}
-        <section className="rounded-[30px] bg-white/94 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.12)] ring-1 ring-white/80">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-400 shadow-sm ring-1 ring-slate-200">
-              <Icon name="doctor" className="h-4 w-4" />
+        <section className="rounded-[26px] bg-white/86 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
+          <div className="flex items-start gap-3">
+            <div className="mt-1 flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
+              <Icon name="spark" className="h-5 w-5" />
             </div>
-            <h2 className="text-[1.05rem] font-bold text-slate-800">AI Note</h2>
-          </div>
-
-          <div className="mt-5">
-            <p className="text-[1.15rem] leading-snug font-medium text-slate-700">
-              <span className="font-extrabold text-slate-900 underline decoration-rose-500/30 decoration-4 underline-offset-2">BP naik</span> berbarengan dengan lupa minum obat.
-            </p>
-          </div>
-
-          <div className="mt-6 rounded-[24px] bg-[linear-gradient(135deg,#fff8f4_0%,#fff2e8_100%)] p-5 ring-1 ring-[#ffe4d1] shadow-sm">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
-                <span className="text-[10px]">🧡</span>
+            <div className="flex-1">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-slate-900">AI Health Insights</p>
               </div>
-              <p className="text-[13px] font-medium leading-[1.6] text-[#8a5d3b]">
-                Ingat, jangan asal stop obat dan rutin minumnya, ya!
-              </p>
+
+              <div className="mt-2">
+                <p className="text-sm leading-6 text-slate-600">
+                  Your <span className="font-semibold text-slate-900 underline decoration-rose-500/30 decoration-2 underline-offset-2">BP increased</span> significantly coinciding with your missed doses.
+                </p>
+              </div>
+
+              <div className="mt-4 rounded-[22px] bg-[linear-gradient(135deg,#f0f9ff_0%,#e0f2fe_100%)] p-4 ring-1 ring-cyan-100 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-cyan-100/20">
+                    <span className="text-xs">💡</span>
+                  </div>
+                  <p className="text-xs leading-relaxed font-medium text-cyan-900/80">
+                    Consistency is key! Avoid skipping doses to keep your pressure stabilized and prevent sudden spikes.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
