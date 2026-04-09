@@ -10,17 +10,17 @@ type ReadingPoint = {
 };
 
 const chartData: ReadingPoint[] = [
-  { date: "Apr 28", shortLabel: "Apr 28", systolic: 118, diastolic: 76 },
-  { date: "Apr 29", shortLabel: "Apr 29", systolic: 126, diastolic: 78 },
-  { date: "Apr 30", shortLabel: "Apr 30", systolic: 136, diastolic: 88 },
-  { date: "May 1", shortLabel: "May 1", systolic: 140, diastolic: 92 },
-  { date: "May 2", shortLabel: "May 2", systolic: 142, diastolic: 92 },
-  { date: "May 3", shortLabel: "May 3", systolic: 144, diastolic: 93 },
-  { date: "May 4", shortLabel: "May 4", systolic: 146, diastolic: 94 },
-  { date: "May 5", shortLabel: "May 5", systolic: 148, diastolic: 95 },
-  { date: "May 6", shortLabel: "May 6", systolic: 145, diastolic: 93 },
-  { date: "May 7", shortLabel: "May 7", systolic: 141, diastolic: 90 },
-  { date: "May 8", shortLabel: "May 8", systolic: 139, diastolic: 89 },
+  { date: "Apr 28", shortLabel: "Apr 28", systolic: 112, diastolic: 72 },
+  { date: "Apr 29", shortLabel: "Apr 29", systolic: 115, diastolic: 74 },
+  { date: "Apr 30", shortLabel: "Apr 30", systolic: 122, diastolic: 78 },
+  { date: "May 1", shortLabel: "May 1", systolic: 126, diastolic: 79 },
+  { date: "May 2", shortLabel: "May 2", systolic: 132, diastolic: 84 },
+  { date: "May 3", shortLabel: "May 3", systolic: 135, diastolic: 86 },
+  { date: "May 4", shortLabel: "May 4", systolic: 140, diastolic: 90 },
+  { date: "May 5", shortLabel: "May 5", systolic: 144, diastolic: 92 },
+  { date: "May 6", shortLabel: "May 6", systolic: 148, diastolic: 94 },
+  { date: "May 7", shortLabel: "May 7", systolic: 152, diastolic: 96 },
+  { date: "May 8", shortLabel: "May 8", systolic: 115, diastolic: 76 },
 ];
 
 const LEFT_PAD = 24;
