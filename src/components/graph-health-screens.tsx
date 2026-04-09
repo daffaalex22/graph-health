@@ -65,7 +65,7 @@ export function HomeScreen() {
                 <div className={item.active ? "flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16" : "flex h-11 w-11 items-center justify-center rounded-2xl bg-white"}>
                   <Icon name={item.icon} className="h-5 w-5" />
                 </div>
-                <p className="mt-4 text-sm font-semibold">{item.label}</p>
+                <p className={item.active ? "mt-4 text-sm font-semibold text-cyan-50" : "mt-4 text-sm font-semibold"}>{item.label}</p>
                 <p className={item.active ? "mt-1 text-xs text-cyan-50" : "mt-1 text-xs text-slate-400"}>{item.caption}</p>
               </Link>
             ))}
