@@ -84,7 +84,7 @@ export function HomeScreen() {
                 <p className="text-xs font-semibold uppercase tracking-[0.14em]">Blood Pressure</p>
               </div>
               <p className="mt-3 text-3xl font-semibold text-rose-600">148 / 95</p>
-              <p className="mt-2 text-sm text-rose-500">Slightly High</p>
+              <p className="mt-2 text-sm text-rose-500">Stage 2</p>
             </div>
             <div className="rounded-[22px] bg-slate-50 p-4">
               <div className="flex items-center gap-2 text-slate-500">
@@ -190,7 +190,7 @@ export function ReadingScreen() {
           <p className="text-base font-medium text-slate-500">Blood Pressure</p>
           <div className="mt-3 flex items-start justify-between gap-4">
             <p className="text-[3rem] leading-none font-semibold text-slate-900">148 / 95</p>
-            <StatusBadge tone="rose">Slightly High</StatusBadge>
+            <StatusBadge tone="rose">Stage 2</StatusBadge>
           </div>
           <div className="mt-6">
             <p className="text-base font-medium text-slate-500">Pulse: 82</p>
