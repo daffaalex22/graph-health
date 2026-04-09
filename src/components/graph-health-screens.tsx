@@ -1,3 +1,6 @@
+"use client";
+
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { Header, Icon, StatusBadge } from "@/components/graph-health-app";
 import { TrendsChart } from "@/components/trends-chart";
@@ -217,6 +220,36 @@ export function ReadingScreen() {
 }
 
 export function InsightScreen() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const dragStartX = useRef<number | null>(null);
+  const dragStartScroll = useRef(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handlePointerDown = (clientX: number) => {
+    if (!scrollRef.current) return;
+    dragStartX.current = clientX;
+    dragStartScroll.current = scrollRef.current.scrollLeft;
+    setIsDragging(true);
+  };
+
+  const handlePointerMove = (clientX: number) => {
+    if (!isDragging || dragStartX.current === null || !scrollRef.current) return;
+    const delta = clientX - dragStartX.current;
+    scrollRef.current.scrollLeft = dragStartScroll.current - delta;
+  };
+
+  const stopDragging = () => {
+    setIsDragging(false);
+    dragStartX.current = null;
+  };
+
+  const medicationHistory = Array.from({ length: 11 }, (_, i) => ({
+    day: i + 1,
+    status: "taken",
+    color: i === 3 ? "rose" : "cyan",
+    marker: i === 2 ? "2" : (i === 3 ? "✻" : undefined)
+  }));
+
   return (
     <div className="pb-28">
       <Header title="Medication" />
@@ -239,16 +272,21 @@ export function InsightScreen() {
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-2.5">
-              {[
-                { day: "Day 1", status: "taken", color: "cyan" },
-                { day: "Day 2", status: "taken", color: "cyan" },
-                { day: "Day 3", status: "taken", color: "cyan", marker: "2" },
-                { day: "Day 4", status: "taken", color: "rose", marker: "✻" },
-              ].map((item, i) => (
-                <div key={i} className="flex flex-col items-center">
-                  <p className="mb-3 text-[13px] font-bold text-slate-400">
-                    Day <span className="text-slate-600 font-extrabold">{i + 1}</span>
+            <div 
+              ref={scrollRef}
+              className="flex gap-4 overflow-x-auto [scrollbar-width:none] touch-pan-x cursor-grab active:cursor-grabbing pb-2"
+              onMouseDown={(e) => handlePointerDown(e.clientX)}
+              onMouseMove={(e) => handlePointerMove(e.clientX)}
+              onMouseUp={stopDragging}
+              onMouseLeave={stopDragging}
+              onTouchStart={(e) => handlePointerDown(e.touches[0]?.clientX ?? 0)}
+              onTouchMove={(e) => handlePointerMove(e.touches[0]?.clientX ?? 0)}
+              onTouchEnd={stopDragging}
+            >
+              {medicationHistory.map((item, i) => (
+                <div key={i} className="flex min-w-[70px] flex-col items-center">
+                  <p className="mb-3 whitespace-nowrap text-[13px] font-bold text-slate-400">
+                    Day <span className="text-slate-600 font-extrabold">{item.day}</span>
                   </p>
                   <div className="relative mb-3 flex h-16 w-full items-center justify-center rounded-[20px] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.03)] ring-1 ring-slate-100">
                     <div className={cn(
