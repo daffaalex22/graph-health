@@ -78,21 +78,25 @@ export function HomeScreen() {
             <button className="text-xs font-medium text-slate-400">See All</button>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-[22px] bg-slate-50 p-4">
-              <div className="flex items-center gap-2 text-slate-500">
-                <Icon name="drop" className="h-4 w-4" />
-                <p className="text-xs font-semibold uppercase tracking-[0.14em]">Blood Pressure</p>
+            <div className="flex flex-col rounded-[22px] bg-slate-50 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-slate-200/50">
+                  <Icon name="drop" className="h-3.5 w-3.5 text-rose-500" />
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">BP</span>
               </div>
-              <p className="mt-3 text-3xl font-semibold text-rose-600">148 / 95</p>
-              <p className="mt-2 text-sm text-rose-500">Stage 2</p>
+              <p className="mt-4 text-[1.65rem] font-bold leading-none text-rose-600">148 / 95</p>
+              <p className="mt-2 text-xs font-semibold text-rose-500/80">Stage 2</p>
             </div>
-            <div className="rounded-[22px] bg-slate-50 p-4">
-              <div className="flex items-center gap-2 text-slate-500">
-                <Icon name="glucose" className="h-4 w-4" />
-                <p className="text-xs font-semibold uppercase tracking-[0.14em]">Glucose</p>
+            <div className="flex flex-col rounded-[22px] bg-slate-50 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-slate-200/50">
+                  <Icon name="glucose" className="h-3.5 w-3.5 text-emerald-500" />
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Glucose</span>
               </div>
-              <p className="mt-3 text-3xl font-semibold text-slate-900">85</p>
-              <p className="mt-2 text-sm text-emerald-600">Normal</p>
+              <p className="mt-4 text-[1.65rem] font-bold leading-none text-slate-900">85</p>
+              <p className="mt-2 text-xs font-semibold text-emerald-600/80">Normal</p>
             </div>
           </div>
         </section>
