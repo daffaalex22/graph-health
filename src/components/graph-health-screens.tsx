@@ -19,7 +19,7 @@ export function HomeScreen() {
                 <p className="text-xs text-slate-500">Action Required</p>
               </div>
             </div>
-            <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold text-rose-500">Aging Tate</span>
+            <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold text-rose-500">ESRD</span>
           </div>
 
           <div className="mt-4 flex items-start justify-between gap-3">
