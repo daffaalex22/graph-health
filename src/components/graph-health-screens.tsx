@@ -145,7 +145,7 @@ export function ScanScreen() {
             </div>
           </div>
           <p className="mt-5 px-3 text-center text-base leading-7 text-slate-600">
-            Place the blood pressure monitor within the frame.
+            Place your health document or device within the frame.
           </p>
         </section>
 
