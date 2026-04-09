@@ -2,6 +2,10 @@ import Link from "next/link";
 import { Header, Icon, StatusBadge } from "@/components/graph-health-app";
 import { TrendsChart } from "@/components/trends-chart";
 
+function cn(...parts: Array<string | false | null | undefined>) {
+  return parts.filter(Boolean).join(" ");
+}
+
 export function HomeScreen() {
   return (
     <div className="pb-28">
@@ -215,63 +219,110 @@ export function ReadingScreen() {
 export function InsightScreen() {
   return (
     <div className="pb-28">
-      <Header title="GraphHealth" />
-      <div className="space-y-4 px-4">
-        <section className="rounded-[28px] bg-white/88 p-5 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
+      <Header title="Medication" />
+      <div className="space-y-5 px-4">
+        {/* Progress & Medication Card */}
+        <section className="overflow-hidden rounded-[30px] bg-white/94 shadow-[0_20px_50px_rgba(15,23,42,0.12)] ring-1 ring-white/80">
+          <div className="px-5 py-4">
+            <h2 className="text-[1.05rem] font-bold text-slate-800">Progress & Medication</h2>
+          </div>
+
+          <div className="mx-2 mb-2 overflow-hidden rounded-[26px] bg-[linear-gradient(180deg,#f0f9ff_0%,#ffffff_100%)] p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.8)] ring-1 ring-slate-100/60">
+            <div className="mb-6 flex items-start justify-between">
+              <div>
+                <h3 className="text-[1.4rem] font-bold tracking-tight text-cyan-950">Amlodipine 5mg</h3>
+                <p className="mt-0.5 text-sm font-medium text-slate-500">Every day</p>
+              </div>
+              <div className="flex items-center gap-1 rounded-lg bg-slate-200/50 px-2 py-1 shadow-sm backdrop-blur-sm">
+                <div className="h-3.5 w-5 rounded-[3px] bg-slate-300 shadow-inner" />
+                <span className="text-[11px] font-bold text-slate-500">3</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2.5">
+              {[
+                { day: "Day 1", status: "taken", color: "cyan" },
+                { day: "Day 2", status: "taken", color: "cyan" },
+                { day: "Day 3", status: "taken", color: "cyan", marker: "2" },
+                { day: "Day 4", status: "taken", color: "rose", marker: "✻" },
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <p className="mb-3 text-[13px] font-bold text-slate-400">
+                    Day <span className="text-slate-600 font-extrabold">{i + 1}</span>
+                  </p>
+                  <div className="relative mb-3 flex h-16 w-full items-center justify-center rounded-[20px] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.03)] ring-1 ring-slate-100">
+                    <div className={cn(
+                      "relative h-10 w-6 rotate-[35deg] overflow-hidden rounded-full shadow-sm ring-1 ring-white/50",
+                      item.color === "cyan" ? "bg-cyan-500" : "bg-rose-500"
+                    )}>
+                      <div className="h-1/2 w-full bg-slate-50/90" />
+                      {item.marker && (
+                        <div className="absolute inset-0 flex items-end justify-center pb-0.5">
+                           <span className={cn(
+                             "text-[10px] font-black -rotate-[35deg]",
+                             item.color === "cyan" ? "text-cyan-600" : "text-rose-100"
+                           )}>{item.marker}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex h-6 w-11 items-center justify-center rounded-full bg-cyan-100/70 text-cyan-600 shadow-sm ring-1 ring-cyan-200/50">
+                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3.5">
+                      <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button className="mt-7 flex w-full items-center justify-between rounded-2xl bg-white/60 px-4 py-3.5 text-slate-600 shadow-sm ring-1 ring-slate-100 transition-active active:scale-[0.98]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-50 text-cyan-500 ring-1 ring-cyan-100">
+                  <span className="text-xs font-bold leading-none">4</span>
+                </div>
+                <p className="text-[13px] font-semibold text-slate-600">Panat J V-mbak duku!</p>
+              </div>
+              <svg viewBox="0 0 24 24" className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </section>
+
+        {/* AI Note Card */}
+        <section className="rounded-[30px] bg-white/94 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.12)] ring-1 ring-white/80">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
-              <Icon name="spark" className="h-5 w-5" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-400 shadow-sm ring-1 ring-slate-200">
+              <Icon name="doctor" className="h-4 w-4" />
             </div>
-            <p className="text-xl font-semibold text-slate-900">AI Health Insight</p>
+            <h2 className="text-[1.05rem] font-bold text-slate-800">AI Note</h2>
           </div>
-          <p className="mt-4 text-[1.75rem] leading-[1.28] font-medium text-slate-700">
-            Your blood pressure has increased for the past 3 days.
-          </p>
-        </section>
 
-        <section className="rounded-[24px] bg-white/88 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
-          <div className="flex items-start gap-3">
-            <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-700">
-              <Icon name="spark" className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-base font-semibold text-cyan-700">Possible reason:</p>
-              <p className="mt-1 text-sm leading-6 text-slate-600">Missed medication yesterday</p>
-            </div>
+          <div className="mt-5">
+            <p className="text-[1.15rem] leading-snug font-medium text-slate-700">
+              <span className="font-extrabold text-slate-900 underline decoration-rose-500/30 decoration-4 underline-offset-2">BP naik</span> berbarengan dengan lupa minum obat.
+            </p>
           </div>
-        </section>
 
-        <section className="rounded-[24px] bg-white/88 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
-          <div className="flex items-start gap-3">
-            <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-500">
-              <Icon name="spark" className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-base font-semibold text-amber-500">Suggestion Action</p>
-              <p className="mt-1 text-sm leading-6 text-slate-600">Take medication and recheck tonight.</p>
-            </div>
-          </div>
-        </section>
-
-        <Link
-          href="/trends"
-          className="inline-flex w-full items-center justify-center rounded-full bg-cyan-600 px-5 py-4 text-base font-semibold text-white shadow-[0_18px_34px_rgba(8,145,178,0.24)]"
-        >
-          View Trends
-        </Link>
-
-        <section className="rounded-[24px] bg-white/88 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
-          <div className="flex items-start gap-3">
-            <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
-              <Icon name="doctor" className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-base font-semibold text-slate-900">Doctor Notification:</p>
-              <p className="mt-1 text-sm leading-6 text-slate-600">
-                Your doctor has been notified about your recent BP trend.
+          <div className="mt-6 rounded-[24px] bg-[linear-gradient(135deg,#fff8f4_0%,#fff2e8_100%)] p-5 ring-1 ring-[#ffe4d1] shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
+                <span className="text-[10px]">🧡</span>
+              </div>
+              <p className="text-[13px] font-medium leading-[1.6] text-[#8a5d3b]">
+                Ingat, jangan asal stop obat dan rutin minumnya, ya!
               </p>
             </div>
           </div>
+        </section>
+
+        <section className="flex flex-col items-center gap-2 py-4">
+            <div className="flex gap-4">
+                <Icon name="bell" className="h-4 w-4 text-slate-300" />
+                <Icon name="clock" className="h-4 w-4 text-slate-300" />
+                <Icon name="manual" className="h-4 w-4 text-slate-300" />
+            </div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-300">GraphHealth © 2026</p>
         </section>
       </div>
     </div>
