@@ -223,11 +223,23 @@ export function InsightScreen() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const dragStartX = useRef<number | null>(null);
   const dragStartScroll = useRef(0);
+  const lastX = useRef(0);
+  const velocity = useRef(0);
+  const rafId = useRef<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      setScrollLeft(scrollRef.current.scrollLeft);
+    }
+  };
 
   const handlePointerDown = (clientX: number) => {
+    if (rafId.current) cancelAnimationFrame(rafId.current);
     if (!scrollRef.current) return;
     dragStartX.current = clientX;
+    lastX.current = clientX;
     dragStartScroll.current = scrollRef.current.scrollLeft;
     setIsDragging(true);
   };
@@ -235,12 +247,29 @@ export function InsightScreen() {
   const handlePointerMove = (clientX: number) => {
     if (!isDragging || dragStartX.current === null || !scrollRef.current) return;
     const delta = clientX - dragStartX.current;
+    velocity.current = clientX - lastX.current;
+    lastX.current = clientX;
     scrollRef.current.scrollLeft = dragStartScroll.current - delta;
   };
 
   const stopDragging = () => {
     setIsDragging(false);
     dragStartX.current = null;
+    
+    // Apply momentum
+    const applyMomentum = () => {
+      if (!scrollRef.current || isDragging) return;
+      scrollRef.current.scrollLeft -= velocity.current;
+      velocity.current *= 0.95; // Friction
+
+      if (Math.abs(velocity.current) > 0.5) {
+        rafId.current = requestAnimationFrame(applyMomentum);
+      }
+    };
+
+    if (Math.abs(velocity.current) > 0.5) {
+      rafId.current = requestAnimationFrame(applyMomentum);
+    }
   };
 
   const medicationHistory = Array.from({ length: 11 }, (_, i) => ({
@@ -272,45 +301,71 @@ export function InsightScreen() {
               </div>
             </div>
 
-            <div 
-              ref={scrollRef}
-              className="flex gap-4 overflow-x-auto [scrollbar-width:none] touch-pan-x cursor-grab active:cursor-grabbing pb-2"
-              onMouseDown={(e) => handlePointerDown(e.clientX)}
-              onMouseMove={(e) => handlePointerMove(e.clientX)}
-              onMouseUp={stopDragging}
-              onMouseLeave={stopDragging}
-              onTouchStart={(e) => handlePointerDown(e.touches[0]?.clientX ?? 0)}
-              onTouchMove={(e) => handlePointerMove(e.touches[0]?.clientX ?? 0)}
-              onTouchEnd={stopDragging}
-            >
-              {medicationHistory.map((item, i) => (
-                <div key={i} className="flex min-w-[70px] flex-col items-center">
-                  <p className="mb-3 whitespace-nowrap text-[13px] font-bold text-slate-400">
-                    Day <span className="text-slate-600 font-extrabold">{item.day}</span>
-                  </p>
-                  <div className="relative mb-3 flex h-16 w-full items-center justify-center rounded-[20px] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.03)] ring-1 ring-slate-100">
-                    <div className={cn(
-                      "relative h-10 w-6 rotate-[35deg] overflow-hidden rounded-full shadow-sm ring-1 ring-white/50",
-                      item.color === "cyan" ? "bg-cyan-500" : "bg-rose-500"
-                    )}>
-                      <div className="h-1/2 w-full bg-slate-50/90" />
-                      {item.marker && (
-                        <div className="absolute inset-0 flex items-end justify-center pb-0.5">
-                           <span className={cn(
-                             "text-[10px] font-black -rotate-[35deg]",
-                             item.color === "cyan" ? "text-cyan-600" : "text-rose-100"
-                           )}>{item.marker}</span>
-                        </div>
-                      )}
+            <div className="relative">
+              <div 
+                ref={scrollRef}
+                onScroll={handleScroll}
+                className="flex gap-4 overflow-x-auto [scrollbar-width:none] touch-pan-x cursor-grab active:cursor-grabbing pb-2"
+                onMouseDown={(e) => handlePointerDown(e.clientX)}
+                onMouseMove={(e) => handlePointerMove(e.clientX)}
+                onMouseUp={stopDragging}
+                onMouseLeave={stopDragging}
+                onTouchStart={(e) => handlePointerDown(e.touches[0]?.clientX ?? 0)}
+                onTouchMove={(e) => handlePointerMove(e.touches[0]?.clientX ?? 0)}
+                onTouchEnd={stopDragging}
+              >
+                {medicationHistory.map((item, i) => (
+                  <div key={i} className="flex min-w-[70px] flex-col items-center">
+                    <p className="mb-3 whitespace-nowrap text-[13px] font-bold text-slate-400">
+                      Day <span className="text-slate-600 font-extrabold">{item.day}</span>
+                    </p>
+                    <div className="relative mb-3 flex h-16 w-full items-center justify-center rounded-[20px] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.03)] ring-1 ring-slate-100">
+                      <div className={cn(
+                        "relative h-10 w-6 rotate-[35deg] overflow-hidden rounded-full shadow-sm ring-1 ring-white/50",
+                        item.color === "cyan" ? "bg-cyan-500" : "bg-rose-500"
+                      )}>
+                        <div className="h-1/2 w-full bg-slate-50/90" />
+                        {item.marker && (
+                          <div className="absolute inset-0 flex items-end justify-center pb-0.5">
+                             <span className={cn(
+                               "text-[10px] font-black -rotate-[35deg]",
+                               item.color === "cyan" ? "text-cyan-600" : "text-rose-100"
+                             )}>{item.marker}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex h-6 w-11 items-center justify-center rounded-full bg-cyan-100/70 text-cyan-600 shadow-sm ring-1 ring-cyan-200/50">
+                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3.5">
+                        <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
                     </div>
                   </div>
-                  <div className="flex h-6 w-11 items-center justify-center rounded-full bg-cyan-100/70 text-cyan-600 shadow-sm ring-1 ring-cyan-200/50">
-                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3.5">
-                      <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white/30 to-transparent" />
+            </div>
+
+            <div className="mt-4 flex items-center justify-between gap-3 px-1">
+              <p className="text-[11px] font-semibold text-slate-400">
+                Drag left or right to see history
+              </p>
+              <div className="flex items-center gap-1.5">
+                {[0, 1, 2].map((i) => {
+                  const maxScroll = scrollRef.current ? scrollRef.current.scrollWidth - scrollRef.current.clientWidth : 1;
+                  const progress = scrollLeft / (maxScroll || 1);
+                  const active = progress <= 0 ? i === 0 : (progress >= 1 ? i === 2 : Math.round(progress * 2) === i);
+                  return (
+                    <div 
+                      key={i} 
+                      className={cn(
+                        "h-1.5 transition-all duration-300 rounded-full",
+                        active ? "w-5 bg-cyan-200" : "w-1.5 bg-slate-100"
+                      )} 
+                    />
+                  );
+                })}
+              </div>
             </div>
 
             <button className="mt-7 flex w-full items-center justify-between rounded-2xl bg-white/60 px-4 py-3.5 text-slate-600 shadow-sm ring-1 ring-slate-100 transition-active active:scale-[0.98]">
