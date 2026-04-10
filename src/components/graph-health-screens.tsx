@@ -223,7 +223,6 @@ export function InsightScreen() {
   const [activeDate, setActiveDate] = useState("May 8");
   const [selectedMonth, setSelectedMonth] = useState("May 2026");
   const [isMonthOpen, setIsMonthOpen] = useState(false);
-  const [activeTime, setActiveTime] = useState<"morning" | "afternoon" | "evening">("morning");
   const months = ["April 2026", "May 2026", "June 2026"];
   
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -231,17 +230,18 @@ export function InsightScreen() {
   const dragStartScroll = useRef(0);
   const isDragging = useRef(false);
 
+  const defaultMeds = [
+    { id: "1", name: "Amlodipine", dosage: "5mg", intakes: { morning: false, afternoon: false, evening: false } },
+    { id: "2", name: "Captopril", dosage: "25mg", intakes: { morning: false, afternoon: false, evening: false } },
+    { id: "3", name: "Metformin", dosage: "500mg", intakes: { morning: false, afternoon: false, evening: false } },
+  ];
+
   const [medsStatus, setMedsStatus] = useState<Record<string, any>>({
-    "May 8": {
-      morning: [
-        { id: "1", name: "Amlodipine", dosage: "5mg", taken: true },
-        { id: "2", name: "Captopril", dosage: "25mg", taken: false },
-      ],
-      afternoon: [],
-      evening: [
-        { id: "3", name: "Captopril", dosage: "25mg", taken: false },
-      ]
-    }
+    "May 8": [
+      { id: "1", name: "Amlodipine", dosage: "5mg", intakes: { morning: true, afternoon: false, evening: false } },
+      { id: "2", name: "Captopril", dosage: "25mg", intakes: { morning: false, afternoon: false, evening: false } },
+      { id: "3", name: "Metformin", dosage: "500mg", intakes: { morning: true, afternoon: true, evening: false } },
+    ]
   });
 
   function handlePointerDown(clientX: number) {
@@ -264,18 +264,21 @@ export function InsightScreen() {
     isDragging.current = false;
   }
 
-  function toggleMed(id: string) {
+  function toggleMed(id: string, time: "morning" | "afternoon" | "evening") {
     setMedsStatus(prev => {
-      const currentMonthData = prev[activeDate] || { morning: [], afternoon: [], evening: [] };
-      const updatedList = (currentMonthData[activeTime] || []).map((m: any) => 
-        m.id === id ? { ...m, taken: !m.taken } : m
+      const currentDayData = prev[activeDate] || defaultMeds;
+      const updatedList = currentDayData.map((m: any) => 
+        m.id === id ? { 
+          ...m, 
+          intakes: {
+            ...m.intakes,
+            [time]: !m.intakes[time]
+          } 
+        } : m
       );
       return {
         ...prev,
-        [activeDate]: {
-          ...currentMonthData,
-          [activeTime]: updatedList
-        }
+        [activeDate]: updatedList
       };
     });
   }
@@ -296,7 +299,7 @@ export function InsightScreen() {
   }
 
   const scheduleDays = getDaysForMonth(selectedMonth);
-  const currentMeds = medsStatus[activeDate]?.[activeTime] || [];
+  const currentMeds = medsStatus[activeDate] || defaultMeds;
 
   return (
     <div className="pb-28 min-h-screen relative overflow-hidden">
@@ -366,45 +369,69 @@ export function InsightScreen() {
         </div>
 
         <section className="rounded-[36px] bg-white p-3 shadow-[0_16px_40px_rgba(15,23,42,0.06)] ring-1 ring-white/80">
-          <div className="mb-4 flex gap-1 rounded-2xl bg-slate-50 p-1.5">
-            {["morning", "afternoon", "evening"].map((t) => (
-              <button
-                key={t}
-                onClick={() => setActiveTime(t as any)}
-                className={cn("flex-1 rounded-xl py-2 text-[12px] font-bold transition-all capitalize", activeTime === t ? "bg-white text-cyan-600 shadow-sm" : "text-slate-400 hover:text-slate-600")}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-
-          <div className="space-y-1 min-h-[220px]">
+          <div className="space-y-1 min-h-[220px] mt-2">
             {currentMeds.length > 0 ? (
-              currentMeds.map((med: any) => (
-                <div key={med.id} className="flex items-center justify-between rounded-[28px] p-3 transition-colors hover:bg-slate-50">
-                  <div className="flex items-center gap-4">
-                    <div className={cn("flex h-[52px] w-[52px] items-center justify-center rounded-[20px] transition-colors", med.taken ? "bg-emerald-50 text-emerald-500" : "bg-cyan-50 text-cyan-600")}>
-                      <Icon name="pill" className="h-6 w-6" />
+              currentMeds.map((med: any) => {
+                const isAllTaken = med.intakes.morning && med.intakes.afternoon && med.intakes.evening;
+                return (
+                  <div key={med.id} className="flex items-center justify-between rounded-[28px] p-3 transition-colors hover:bg-slate-50 border border-transparent hover:border-slate-100">
+                    <div className="flex items-center gap-4">
+                      <div className={cn("flex h-[52px] w-[52px] items-center justify-center rounded-[20px] transition-colors", isAllTaken ? "bg-emerald-50 text-emerald-500" : "bg-cyan-50 text-cyan-600")}>
+                        <Icon name="pill" className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className={cn("text-[16px] font-bold tracking-tight", isAllTaken ? "text-slate-500 line-through" : "text-slate-800")}>{med.name}</p>
+                        <p className="text-[11px] font-bold text-slate-400 lowercase tracking-wide">{med.dosage}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className={cn("text-[16px] font-bold tracking-tight", med.taken ? "text-slate-400 line-through" : "text-slate-800")}>{med.name}</p>
-                      <p className="text-[11px] font-bold text-slate-400 lowercase tracking-wide">{med.dosage}</p>
+                    <div className="flex items-center gap-1.5">
+                      {(["morning", "afternoon", "evening"] as const).map((time) => {
+                        const isTaken = med.intakes[time];
+                        const colors = {
+                          morning: isTaken ? "bg-amber-400 text-white shadow-sm shadow-amber-400/30" : "bg-amber-50 text-amber-500",
+                          afternoon: isTaken ? "bg-orange-400 text-white shadow-sm shadow-orange-400/30" : "bg-orange-50 text-orange-500",
+                          evening: isTaken ? "bg-indigo-400 text-white shadow-sm shadow-indigo-400/30" : "bg-indigo-50 text-indigo-500"
+                        };
+                        const icons = {
+                          morning: (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-[15px] w-[15px]">
+                              <path d="M12 2v6"/><path d="M8.4 10.4 6.9 8.9"/><path d="M15.6 10.4l1.5-1.5"/><path d="M22 22H2"/><path d="M8 6l4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/>
+                            </svg>
+                          ),
+                          afternoon: (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-[16px] w-[16px]">
+                              <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m19.07 19.07-1.41-1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+                            </svg>
+                          ),
+                          evening: (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-[14px] w-[14px]">
+                              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                            </svg>
+                          )
+                        };
+                        return (
+                          <button
+                            key={time}
+                            onClick={() => toggleMed(med.id, time)}
+                            className={cn(
+                              "flex h-9 w-9 items-center justify-center rounded-full text-[13px] font-bold transition-all active:scale-95",
+                              colors[time]
+                            )}
+                          >
+                            {isTaken ? (
+                              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="4">
+                                <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            ) : (
+                              icons[time]
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                  <button 
-                    onClick={() => toggleMed(med.id)}
-                    className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-all ring-1 active:scale-95", med.taken ? "bg-emerald-500 text-white ring-emerald-500 border-none" : "bg-white text-slate-300 ring-slate-100")}
-                  >
-                    {med.taken ? (
-                      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="3.5">
-                        <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    ) : (
-                      <div className="h-2 w-2 rounded-full bg-slate-100" />
-                    )}
-                  </button>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="flex flex-col items-center justify-center pt-10 text-center opacity-40">
                 <div className="mb-3 rounded-full bg-slate-100 p-4">
