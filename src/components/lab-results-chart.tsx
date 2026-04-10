@@ -9,6 +9,10 @@ type LabDataPoint = {
   note?: string;
 };
 
+function cn(...parts: Array<string | false | null | undefined>) {
+  return parts.filter(Boolean).join(" ");
+}
+
 type LabType = "Ureum" | "Creatinine";
 
 const labData: Record<LabType, LabDataPoint[]> = {
@@ -94,6 +98,16 @@ export function LabResultsChart() {
     container.scrollTo({ left: nextScrollLeft, behavior: "smooth" });
   }, [points, selectedIndex]);
 
+  const viewportStart = Math.min(
+    Math.max(Math.round(scrollLeft / POINT_GAP), 0),
+    maxWindowStart,
+  );
+  const viewportPoints = currentData.slice(viewportStart, viewportStart + VISIBLE_POINT_COUNT);
+  const activeViewportIndex = Math.min(
+    Math.max(selectedIndex - viewportStart, 0),
+    Math.max(viewportPoints.length - 1, 0),
+  );
+
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -174,6 +188,7 @@ export function LabResultsChart() {
           )}
         </div>
       </div>
+
 
       <div
         ref={scrollRef}
@@ -259,6 +274,27 @@ export function LabResultsChart() {
               );
             })}
           </svg>
+        </div>
+      </div>
+
+      <div className="mt-4 mb-6 flex items-center justify-between px-1">
+        <p className="text-[12px] font-semibold text-slate-400/70 leading-tight">
+          Drag the chart left or right<br />
+          to explore the timeline
+        </p>
+        <div className="flex gap-1.5 px-1">
+          {viewportPoints.map((_, i) => {
+            const isActive = i === activeViewportIndex;
+            return (
+              <div 
+                key={i} 
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full transition-all duration-300",
+                  isActive ? "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.3)] scale-125" : "bg-slate-200"
+                )} 
+              />
+            );
+          })}
         </div>
       </div>
 
