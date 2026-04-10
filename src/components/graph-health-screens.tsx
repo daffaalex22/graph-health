@@ -155,20 +155,17 @@ export function HomeScreen() {
           </div>
         </section>
 
-        <section className="rounded-[26px] bg-white/86 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
+        <section className="rounded-[28px] bg-[linear-gradient(135deg,#f0f9ff_0%,#e0f2fe_100%)] p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-cyan-100/50">
           <div className="flex items-start gap-3">
-            <div className="mt-1 flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
+            <div className="mt-1 flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
               <Icon name="spark" className="h-5 w-5" />
             </div>
             <div className="flex-1">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-semibold text-slate-900">AI Health Insight</p>
-                <span className="text-lg text-amber-400">☀</span>
-              </div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <p className="text-[10px] font-bold text-cyan-900 uppercase tracking-widest leading-none">AI Health Insight</p>
+              <p className="mt-2 text-sm leading-6 text-cyan-800 font-medium pt-1">
                 Your BP increased after missing medication yesterday.
               </p>
-              <Link href="/insight" className="mt-4 inline-flex rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-white">
+              <Link href="/insight" className="mt-4 inline-flex rounded-full bg-cyan-600 px-5 py-2 text-[13px] font-bold !text-white shadow-md shadow-cyan-600/20 active:scale-95 transition-all">
                 Take Progress
               </Link>
             </div>
@@ -563,6 +560,48 @@ export function TrendsScreen() {
       <div className="space-y-4 px-4">
         <TrendsChart />
         <LabResultsChart />
+        
+        <section className="rounded-[28px] bg-white/88 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-2xl font-bold text-slate-900">Rontgen Result</p>
+              <p className="text-sm font-medium text-slate-400">Chest X-Ray</p>
+            </div>
+          </div>
+          <div className="mt-4 overflow-hidden rounded-[22px] bg-slate-100 ring-1 ring-slate-200/50">
+            <img src="/images/xray.jpg" alt="Rontgen Result" className="w-full mix-blend-multiply" />
+          </div>
+          <div className="mt-4 rounded-[18px] bg-slate-50 p-3 ring-1 ring-slate-100/80">
+            <div className="flex items-start gap-2.5">
+              <div className="mt-0.5 rounded-full bg-slate-400 p-1">
+                <svg className="h-2 w-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                  <path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Radiology Note</p>
+                <p className="mt-0.5 text-[11px] font-semibold text-slate-600 leading-relaxed italic">
+                  "The chest X-ray is within normal limits"
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-[28px] bg-[linear-gradient(135deg,#f0f9ff_0%,#e0f2fe_100%)] p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-cyan-100/50">
+          <div className="flex items-start gap-3">
+            <div className="mt-1 flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
+              <Icon name="spark" className="h-5 w-5" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] font-bold text-cyan-900 uppercase tracking-widest">AI Summary</p>
+              <p className="mt-2 text-sm leading-6 text-cyan-800 font-medium pt-1">
+                Your chest X-ray confirms clear lung fields and a normal cardiac silhouette. These results, combined with your stable BUN levels, suggest effective management of current underlying conditions.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
