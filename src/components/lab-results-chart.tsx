@@ -6,6 +6,7 @@ type LabDataPoint = {
   date: string;
   shortLabel: string;
   value: number;
+  note?: string;
 };
 
 type LabType = "Ureum" | "Creatinine";
@@ -16,8 +17,8 @@ const labData: Record<LabType, LabDataPoint[]> = {
     { date: "Mar 20", shortLabel: "Mar 20", value: 6.8 },
     { date: "Apr 7", shortLabel: "Apr 7", value: 8.5 },
     { date: "Apr 17", shortLabel: "Apr 17", value: 9.2 },
-    { date: "May 9", shortLabel: "May 9", value: 10.5 },
-    { date: "May 9", shortLabel: "May 9", value: 7.4 },
+    { date: "May 9", shortLabel: "May 9", value: 10.5, note: "Pre-hemodialysis" },
+    { date: "May 9", shortLabel: "May 9", value: 7.4, note: "Post-hemodialysis" },
   ],
   Creatinine: [
     { date: "Mar 2", shortLabel: "Mar 2", value: 0.9 },
@@ -261,7 +262,26 @@ export function LabResultsChart() {
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-between rounded-[20px] bg-slate-50 px-4 py-3 ring-1 ring-slate-100/50">
+      {selectedPoint.note && (
+        <div className="mb-4 rounded-[18px] bg-slate-100/40 p-3 ring-1 ring-slate-100/80">
+          <div className="flex items-start gap-2.5">
+            <div className="mt-0.5 rounded-full bg-slate-400 p-1">
+              <svg className="h-2 w-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                <path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Clinical Note</p>
+              <p className="mt-0.5 text-[11px] font-semibold text-slate-600 leading-relaxed italic">
+                "{selectedPoint.note}"
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between rounded-[20px] bg-slate-50 px-4 py-3 ring-1 ring-slate-100/50">
         <div>
           <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">{activeType} Level</p>
           <div className="mt-1 flex items-baseline gap-1.5">
@@ -273,10 +293,6 @@ export function LabResultsChart() {
           {isHigh ? "Above Normal" : isLow ? "Below Normal" : "Optimized"}
         </div>
       </div>
-      
-      <p className="mt-3 text-center text-[11px] font-medium text-slate-400">
-        Normal range: {meta.normalMin} - {meta.normalMax} {meta.unit}
-      </p>
     </section>
   );
 }
