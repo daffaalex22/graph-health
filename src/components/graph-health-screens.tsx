@@ -108,7 +108,7 @@ export function HomeScreen() {
           <div className="mt-4 grid grid-cols-3 gap-3">
             {[
               { label: "Take Photo", icon: "camera" as const, caption: "1 tap", href: "/scan", active: true },
-              { label: "Add Medication", icon: "pill" as const, caption: "Log dose", href: "/insight", active: false },
+              { label: "Log Meds", icon: "pill" as const, caption: "Track intake", href: "/insight", active: false },
               { label: "Emergency Call", icon: "doctor" as const, caption: "Quick help", href: "/", active: false },
             ].map((item) => (
               <Link
