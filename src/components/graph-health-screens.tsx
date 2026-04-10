@@ -34,7 +34,12 @@ export function HomeScreen() {
           <div className="mt-4 flex items-start justify-between gap-3">
             <div>
               <p className="text-[1.65rem] leading-none font-semibold text-slate-900">Daniel Kim, 63 y.o.</p>
-              <p className="mt-3 text-sm text-slate-500">BP rising for 3 days</p>
+              <p className="mt-3 text-sm text-slate-500">
+                <span className="group relative inline-block cursor-help underline decoration-slate-400 decoration-dashed underline-offset-4">
+                  BP
+                  <span className="pointer-events-none absolute -top-8 left-0 w-max rounded-lg bg-slate-800 px-2.5 py-1 text-[11px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100 group-active:opacity-100 z-10">Blood Pressure</span>
+                </span> rising for 3 days
+              </p>
               <p className="mt-2 text-[2.1rem] leading-none font-semibold text-rose-600">148 / 95</p>
               <p className="mt-2 text-xs text-slate-500">Today, 8:45 AM</p>
             </div>
@@ -137,7 +142,10 @@ export function HomeScreen() {
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-slate-200/50">
                   <Icon name="drop" className="h-3.5 w-3.5 text-rose-500" />
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">BP</span>
+                <span className="group relative inline-block cursor-help text-[10px] font-bold uppercase tracking-widest text-slate-400 underline decoration-slate-300 decoration-dashed underline-offset-4">
+                  BP
+                  <span className="pointer-events-none absolute -top-8 right-0 w-max rounded-lg bg-slate-800 px-2 py-1 text-[11px] font-bold text-white normal-case tracking-normal opacity-0 transition-opacity group-hover:opacity-100 group-active:opacity-100 z-10">Blood Pressure</span>
+                </span>
               </div>
               <p className="mt-4 text-[1.65rem] font-bold leading-none text-rose-600">148 / 95</p>
               <p className="mt-2 text-xs font-semibold text-rose-500/80">Stage 2</p>
@@ -163,7 +171,10 @@ export function HomeScreen() {
             <div className="flex-1">
               <p className="text-[10px] font-bold text-cyan-900 uppercase tracking-widest leading-none">AI Health Insight</p>
               <p className="mt-2 text-sm leading-6 text-cyan-800 font-medium pt-1">
-                Your BP increased after missing medication yesterday.
+                Your <span className="group relative inline-block cursor-help underline decoration-cyan-400 decoration-dashed underline-offset-4">
+                  BP
+                  <span className="pointer-events-none absolute -top-8 left-0 w-max rounded-lg bg-slate-800 px-2 py-1 text-[11px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100 group-active:opacity-100 z-10">Blood Pressure</span>
+                </span> increased after missing medication yesterday.
               </p>
               <Link href="/insight" className="mt-4 inline-flex rounded-full bg-cyan-600 px-5 py-2 text-[13px] font-bold !text-white shadow-md shadow-cyan-600/20 active:scale-95 transition-all">
                 Take Progress
