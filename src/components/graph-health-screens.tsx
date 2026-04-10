@@ -326,9 +326,11 @@ export function InsightScreen() {
   const optionalMeds = currentDayData.optional;
 
   return (
-    <div className="pb-28 min-h-screen relative overflow-hidden">
-      <div className="absolute -top-10 -right-20 h-96 w-96 rounded-full bg-rose-200/40 mix-blend-multiply blur-3xl pointer-events-none" />
-      <div className="absolute top-40 -left-20 h-[500px] w-[500px] rounded-full bg-cyan-200/30 mix-blend-multiply blur-3xl pointer-events-none" />
+    <div className="pb-28 min-h-screen relative">
+      <div className="absolute inset-x-0 top-0 h-[800px] overflow-hidden pointer-events-none">
+        <div className="absolute -top-10 -right-20 h-96 w-96 rounded-full bg-rose-200/40 mix-blend-multiply blur-3xl" />
+        <div className="absolute top-40 -left-20 h-[500px] w-[500px] rounded-full bg-cyan-200/30 mix-blend-multiply blur-3xl" />
+      </div>
 
       <Header title="Medication" />
 
