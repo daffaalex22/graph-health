@@ -114,11 +114,13 @@ export function HomeScreen() {
             {[
               { label: "Take Photo", icon: "camera" as const, caption: "1 tap", href: "/scan", active: true },
               { label: "Log Meds", icon: "pill" as const, caption: "Track intake", href: "/insight", active: false },
-              { label: "Emergency Call", icon: "doctor" as const, caption: "Quick help", href: "https://www.halodoc.com/tanya-dokter", active: false },
+              { label: "Emergency Call", icon: "doctor" as const, caption: "Quick help", href: "https://www.halodoc.com/tanya-dokter", active: false, external: true },
             ].map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
+                target={item.external ? "_blank" : undefined}
+                rel={item.external ? "noopener noreferrer" : undefined}
                 className={item.active ? "rounded-[22px] bg-cyan-600 p-3 text-left text-white shadow-[0_16px_28px_rgba(8,145,178,0.24)]" : "rounded-[22px] bg-slate-50 p-3 text-left text-slate-700"}
               >
                 <div className={item.active ? "flex h-11 w-11 items-center justify-center rounded-2xl bg-white/16" : "flex h-11 w-11 items-center justify-center rounded-2xl bg-white"}>
