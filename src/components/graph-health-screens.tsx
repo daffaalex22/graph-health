@@ -442,18 +442,7 @@ export function InsightScreen() {
               </div>
             )}
           </div>
-          
-          <div className="mt-6 mb-2 flex justify-center gap-3 relative z-10">
-             <button className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-100 text-slate-400">
-                <Icon name="home" className="h-5 w-5" />
-             </button>
-             <button className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-100 text-slate-400">
-                <Icon name="camera" className="h-5 w-5" />
-             </button>
-             <button className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-600 shadow-[0_8px_16px_rgba(8,145,178,0.35)] text-white">
-                <Icon name="clock" className="h-5 w-5" />
-             </button>
-          </div>
+
         </section>
       </div>
     </div>
