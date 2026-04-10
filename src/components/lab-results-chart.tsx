@@ -203,7 +203,7 @@ export function LabResultsChart() {
           y={14}
           className="text-[10px] font-bold uppercase tracking-widest fill-slate-500"
         >
-          {type}
+          {type} ({meta.unit})
         </text>
 
         <path
@@ -225,6 +225,32 @@ export function LabResultsChart() {
           let pointColor = point.value >= meta.normalMax ? "#ef4444" : "#10b981";
           return (
             <g key={`${point.date}-${point.index}`} onClick={() => setSelectedIndex(point.index)} className="cursor-pointer">
+              {isSelected && (
+                <g className="animate-in fade-in zoom-in duration-300">
+                  <rect
+                    x={point.x - 22}
+                    y={point.y - 34}
+                    width="44"
+                    height="22"
+                    rx="11"
+                    fill={pointColor}
+                    className="shadow-sm"
+                  />
+                  <text
+                    x={point.x}
+                    y={point.y - 19}
+                    textAnchor="middle"
+                    className="text-[11px] font-black fill-white tracking-tight"
+                  >
+                    {point.value}
+                  </text>
+                  <line 
+                    x1={point.x} y1={point.y - 12} 
+                    x2={point.x} y2={point.y - 7} 
+                    stroke={pointColor} strokeWidth="2" strokeLinecap="round" 
+                  />
+                </g>
+              )}
               <circle
                 cx={point.x}
                 cy={point.y}
@@ -353,18 +379,6 @@ export function LabResultsChart() {
         </div>
       )}
 
-      <div className="flex items-center justify-between rounded-[20px] bg-slate-50 px-4 py-3 ring-1 ring-slate-100/50">
-        <div>
-          <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">{activeType} Level</p>
-          <div className="mt-1 flex items-baseline gap-1.5">
-            <p className="text-xl font-bold text-slate-900">{selectedPoint.value}</p>
-            <p className="text-xs font-medium text-slate-400">{activeMeta.unit}</p>
-          </div>
-        </div>
-        <div className={`rounded-xl px-3 py-1.5 text-[11px] font-bold ring-1 ${isHigh ? "bg-rose-50 text-rose-600 ring-rose-100" : isLow ? "bg-amber-50 text-amber-600 ring-amber-100" : "bg-emerald-50 text-emerald-600 ring-emerald-100"}`}>
-          {isHigh ? "Above Normal" : isLow ? "Below Normal" : "Optimized"}
-        </div>
-      </div>
     </section>
   );
 }
