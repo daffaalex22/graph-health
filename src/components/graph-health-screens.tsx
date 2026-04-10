@@ -114,7 +114,7 @@ export function HomeScreen() {
             {[
               { label: "Take Photo", icon: "camera" as const, caption: "1 tap", href: "/scan", active: true },
               { label: "Log Meds", icon: "pill" as const, caption: "Track intake", href: "/insight", active: false },
-              { label: "Emergency Call", icon: "doctor" as const, caption: "Quick help", href: "/", active: false },
+              { label: "Emergency Call", icon: "doctor" as const, caption: "Quick help", href: "https://www.halodoc.com/tanya-dokter", active: false },
             ].map((item) => (
               <Link
                 key={item.label}
