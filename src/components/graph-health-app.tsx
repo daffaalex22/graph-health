@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+
 
 export type TabId = "home" | "scan" | "reading" | "insight" | "trends";
 
@@ -170,41 +172,168 @@ export function StatusBadge({
 }
 
 export function Header({ title, showBack = false }: { title: string; showBack?: boolean }) {
+  const [showNotification, setShowNotification] = useState(false);
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "Health Alert",
+      message: "The BP is rising for 3 days, please take Dopamet",
+      isRead: false,
+      time: "Just now",
+      urgent: true,
+    },
+    {
+      id: 2,
+      title: "Medication Reminder",
+      message: "Time for your afternoon Captopril dose",
+      isRead: true,
+      time: "2h ago",
+      urgent: false,
+    },
+  ]);
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  const markAsRead = (id: number) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+    );
+  };
+
+  const markAllAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+  };
+
   return (
     <header className="sticky top-0 z-40 mb-4 px-4 pt-3">
-      <div className="flex items-center justify-between rounded-[24px] bg-white/84 px-4 py-3 shadow-[0_14px_30px_rgba(15,23,42,0.07)] ring-1 ring-white/85 backdrop-blur-xl">
-        <div className="flex items-center gap-3">
-          {showBack ? (
-            <Link
-              href="/"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-slate-600 shadow-sm ring-1 ring-slate-100"
-            >
-              <Icon name="arrow-left" className="h-5 w-5" />
-            </Link>
-          ) : (
-            <div className="overflow-hidden rounded-full shadow-sm ring-1 ring-[#a31b39]/15">
-              <Image
-                src="/logo.png"
-                alt="GraphHealth logo"
-                width={40}
-                height={40}
-                className="h-10 w-10 object-cover"
-                priority
-              />
+      <div className="relative">
+        <div className="flex items-center justify-between rounded-[24px] bg-white/84 px-4 py-3 shadow-[0_14px_30px_rgba(15,23,42,0.07)] ring-1 ring-white/85 backdrop-blur-xl">
+          <div className="flex items-center gap-3">
+            {showBack ? (
+              <Link
+                href="/"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-slate-600 shadow-sm ring-1 ring-slate-100"
+              >
+                <Icon name="arrow-left" className="h-5 w-5" />
+              </Link>
+            ) : (
+              <div className="overflow-hidden rounded-full shadow-sm ring-1 ring-[#a31b39]/15">
+                <Image
+                  src="/logo.png"
+                  alt="GraphHealth logo"
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 object-cover"
+                  priority
+                />
+              </div>
+            )}
+            <div>
+              <p className="text-lg font-semibold text-slate-900">{title}</p>
+              <p className="text-xs text-slate-500">GraphHealth</p>
             </div>
-          )}
-          <div>
-            <p className="text-lg font-semibold text-slate-900">{title}</p>
-            <p className="text-xs text-slate-500">GraphHealth</p>
           </div>
+          <button
+            onClick={() => setShowNotification(!showNotification)}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-rose-500 shadow-sm ring-1 ring-slate-100 transition-all active:scale-95"
+          >
+            <Icon name="bell" className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute right-2.5 top-2.5 flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500"></span>
+              </span>
+            )}
+          </button>
         </div>
-        <button className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-rose-500 shadow-sm ring-1 ring-slate-100">
-          <Icon name="bell" className="h-5 w-5" />
-        </button>
+
+        {showNotification && (
+          <div className="absolute right-0 top-full mt-3 w-[320px] origin-top-right animate-in fade-in zoom-in slide-in-from-top-2 duration-200 ease-out z-50">
+            <div className="overflow-hidden rounded-[28px] bg-white/95 shadow-[0_20px_40px_rgba(0,0,0,0.12)] ring-1 ring-black/5 backdrop-blur-xl">
+              <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                <p className="text-base font-bold text-slate-900">Notifications</p>
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="text-[11px] font-bold text-cyan-600 hover:text-cyan-700"
+                  >
+                    Mark all as read
+                  </button>
+                )}
+              </div>
+              <div className="max-h-[360px] overflow-y-auto overflow-x-hidden">
+                {notifications.length > 0 ? (
+                  notifications.map((n) => (
+                    <div
+                      key={n.id}
+                      onClick={() => markAsRead(n.id)}
+                      className={cn(
+                        "group relative flex cursor-pointer items-start gap-3 p-4 transition-colors hover:bg-slate-50",
+                        !n.isRead && "bg-cyan-50/40"
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl",
+                          n.urgent ? "bg-rose-50 text-rose-600" : "bg-cyan-50 text-cyan-600"
+                        )}
+                      >
+                        <Icon name={n.urgent ? "alert" : "pill"} className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <p
+                            className={cn(
+                              "text-sm font-bold",
+                              n.isRead ? "text-slate-600" : "text-slate-900"
+                            )}
+                          >
+                            {n.title}
+                          </p>
+                          <p className="text-[10px] font-medium text-slate-400">{n.time}</p>
+                        </div>
+                        <p
+                          className={cn(
+                            "mt-1 text-sm leading-snug",
+                            n.isRead ? "text-slate-500 font-normal" : "text-slate-700 font-medium"
+                          )}
+                        >
+                          {n.message}
+                        </p>
+                        {!n.isRead && (
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                            <div className="h-2 w-2 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-8 text-center opacity-40">
+                    <Icon name="bell" className="h-8 w-8 text-slate-300" />
+                    <p className="mt-2 text-sm font-medium text-slate-500">All caught up!</p>
+                  </div>
+                )}
+              </div>
+              <div className="border-t border-slate-100 p-3">
+                <button
+                  onClick={() => setShowNotification(false)}
+                  className="w-full rounded-xl py-2 text-center text-xs font-bold text-slate-400 hover:bg-slate-50"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            {/* Arrow */}
+            <div className="absolute -top-1.5 right-4 h-3 w-3 rotate-45 bg-white ring-1 ring-black/5" />
+          </div>
+        )}
       </div>
     </header>
   );
 }
+
+
 
 function BottomNav() {
   const pathname = usePathname();
