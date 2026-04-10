@@ -351,10 +351,8 @@ export function InsightScreen() {
         <section className="rounded-[36px] bg-white p-3 shadow-[0_16px_40px_rgba(15,23,42,0.06)] ring-1 ring-white/80">
           <div className="space-y-1">
             {[
-              { name: "Aspirin", time: "3:00pm", status: "Before", statusColor: "bg-amber-500 text-white", iconCol: "bg-cyan-50 text-cyan-600" },
-              { name: "Lisinopril", time: "5:30pm", status: "Evening", statusColor: "bg-emerald-500 text-white", iconCol: "bg-cyan-50 text-cyan-600" },
-              { name: "Amoxicillin", time: "8:00pm", status: "Intake", statusColor: "bg-transparent text-slate-400", iconCol: "bg-cyan-50 text-cyan-600" },
-              { name: "Metoprolol", time: "8:30pm", status: "Intake", statusColor: "bg-transparent text-slate-400", iconCol: "bg-cyan-50 text-cyan-600" },
+              { name: "Amlodipine", note: "5mg", time: "8:00am", status: "Morning", statusColor: "bg-emerald-500 text-white", iconCol: "bg-cyan-50 text-cyan-600" },
+              { name: "Captopril", note: "25mg", time: "6:00pm", status: "Evening", statusColor: "bg-emerald-500 text-white", iconCol: "bg-cyan-50 text-cyan-600" },
             ].map((med, i) => (
               <div key={i} className="flex items-center justify-between rounded-[28px] p-3 transition-colors hover:bg-slate-50">
                 <div className="flex items-center gap-4">
@@ -363,9 +361,13 @@ export function InsightScreen() {
                   </div>
                   <div className="flex flex-col items-start pt-1">
                     <p className="text-[16px] font-bold text-slate-800 tracking-tight">{med.name}</p>
-                    <svg className="mt-1 h-2 w-8 text-slate-300" viewBox="0 0 40 10" preserveAspectRatio="none">
-                      <path d="M0 5 Q 5 0, 10 5 T 20 5 T 30 5 T 40 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
+                    {med.note ? (
+                      <p className="text-[11px] font-bold text-slate-400 lowercase tracking-wide">{med.note}</p>
+                    ) : (
+                      <svg className="mt-1 h-2 w-8 text-slate-300" viewBox="0 0 40 10" preserveAspectRatio="none">
+                        <path d="M0 5 Q 5 0, 10 5 T 20 5 T 30 5 T 40 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-3 pr-1">
