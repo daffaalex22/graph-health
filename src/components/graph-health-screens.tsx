@@ -223,11 +223,26 @@ export function InsightScreen() {
   const [activeDate, setActiveDate] = useState("May 8");
   const [selectedMonth, setSelectedMonth] = useState("May 2026");
   const [isMonthOpen, setIsMonthOpen] = useState(false);
+  const [activeTime, setActiveTime] = useState<"morning" | "afternoon" | "evening">("morning");
   const months = ["April 2026", "May 2026", "June 2026"];
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const dragStartX = useRef<number | null>(null);
   const dragStartScroll = useRef(0);
   const isDragging = useRef(false);
+
+  const [medsStatus, setMedsStatus] = useState<Record<string, any>>({
+    "May 8": {
+      morning: [
+        { id: "1", name: "Amlodipine", dosage: "5mg", taken: true },
+        { id: "2", name: "Captopril", dosage: "25mg", taken: false },
+      ],
+      afternoon: [],
+      evening: [
+        { id: "3", name: "Captopril", dosage: "25mg", taken: false },
+      ]
+    }
+  });
 
   function handlePointerDown(clientX: number) {
     const container = scrollRef.current;
@@ -249,14 +264,27 @@ export function InsightScreen() {
     isDragging.current = false;
   }
 
+  function toggleMed(id: string) {
+    setMedsStatus(prev => {
+      const currentMonthData = prev[activeDate] || { morning: [], afternoon: [], evening: [] };
+      const updatedList = (currentMonthData[activeTime] || []).map((m: any) => 
+        m.id === id ? { ...m, taken: !m.taken } : m
+      );
+      return {
+        ...prev,
+        [activeDate]: {
+          ...currentMonthData,
+          [activeTime]: updatedList
+        }
+      };
+    });
+  }
+
   function getDaysForMonth(monthStr: string) {
     const [monthName, year] = monthStr.split(" ");
-    const monthMap: Record<string, number> = {
-      April: 3, May: 4, June: 5
-    };
+    const monthMap: Record<string, number> = { April: 3, May: 4, June: 5 };
     const monthIdx = monthMap[monthName] ?? 4;
     const numDays = new Date(parseInt(year), monthIdx + 1, 0).getDate();
-    
     return Array.from({ length: numDays }, (_, i) => {
       const d = new Date(parseInt(year), monthIdx, i + 1);
       return {
@@ -268,20 +296,18 @@ export function InsightScreen() {
   }
 
   const scheduleDays = getDaysForMonth(selectedMonth);
+  const currentMeds = medsStatus[activeDate]?.[activeTime] || [];
 
   return (
     <div className="pb-28 min-h-screen relative overflow-hidden">
-      {/* Decorative Background Elements */}
       <div className="absolute -top-10 -right-20 h-96 w-96 rounded-full bg-rose-200/40 mix-blend-multiply blur-3xl pointer-events-none" />
       <div className="absolute top-40 -left-20 h-[500px] w-[500px] rounded-full bg-cyan-200/30 mix-blend-multiply blur-3xl pointer-events-none" />
 
       <Header title="Medication" />
 
       <div className="relative px-6 pt-0 space-y-7 z-10">
-
         <div className="relative z-20">
           <h2 className="text-[36px] font-bold text-slate-100 mix-blend-difference tracking-tight drop-shadow-sm">Schedule</h2>
-          
           <div className="relative mt-5 inline-block">
             <button 
               onClick={() => setIsMonthOpen(!isMonthOpen)}
@@ -292,7 +318,6 @@ export function InsightScreen() {
                 <Icon name="arrow-left" className="h-3 w-3" />
               </div>
             </button>
-
             {isMonthOpen && (
               <div className="absolute left-0 top-full mt-2 w-40 overflow-hidden rounded-2xl bg-white p-1.5 shadow-[0_20px_40px_rgba(15,23,42,0.18)] ring-1 ring-slate-100 backdrop-blur-xl animate-in fade-in zoom-in duration-200 z-50">
                 {months.map(m => (
@@ -304,10 +329,7 @@ export function InsightScreen() {
                       setActiveDate(`${m.substring(0, 3)} 1`);
                       if (scrollRef.current) scrollRef.current.scrollLeft = 0;
                     }}
-                    className={cn(
-                      "w-full rounded-xl px-4 py-2 text-left text-[13px] font-bold transition-colors",
-                      selectedMonth === m ? "bg-cyan-50 text-cyan-700" : "text-slate-600 hover:bg-slate-50"
-                    )}
+                    className={cn("w-full rounded-xl px-4 py-2 text-left text-[13px] font-bold transition-colors", selectedMonth === m ? "bg-cyan-50 text-cyan-700" : "text-slate-600 hover:bg-slate-50")}
                   >
                     {m}
                   </button>
@@ -320,12 +342,12 @@ export function InsightScreen() {
         <div 
           ref={scrollRef}
           className="mt-6 flex gap-3 overflow-x-auto [scrollbar-width:none] touch-pan-x pb-4 cursor-grab active:cursor-grabbing"
-          onMouseDown={(event) => handlePointerDown(event.clientX)}
-          onMouseMove={(event) => handlePointerMove(event.clientX)}
+          onMouseDown={(e) => handlePointerDown(e.clientX)}
+          onMouseMove={(e) => handlePointerMove(e.clientX)}
           onMouseUp={stopDragging}
           onMouseLeave={stopDragging}
-          onTouchStart={(event) => handlePointerDown(event.touches[0]?.clientX ?? 0)}
-          onTouchMove={(event) => handlePointerMove(event.touches[0]?.clientX ?? 0)}
+          onTouchStart={(e) => handlePointerDown(e.touches[0]?.clientX ?? 0)}
+          onTouchMove={(e) => handlePointerMove(e.touches[0]?.clientX ?? 0)}
           onTouchEnd={stopDragging}
         >
           {scheduleDays.map(item => {
@@ -334,12 +356,7 @@ export function InsightScreen() {
               <button 
                 key={item.id}
                 onClick={() => setActiveDate(item.id)}
-                className={cn(
-                  "flex shrink-0 flex-col items-center justify-center rounded-full h-20 w-[60px] transition-all",
-                  isActive 
-                    ? "bg-white shadow-[0_8px_16px_rgba(0,0,0,0.06)] ring-1 ring-slate-100/50 scale-105" 
-                    : "bg-white/50 text-slate-600 hover:bg-white/70 backdrop-blur-sm"
-                )}
+                className={cn("flex shrink-0 flex-col items-center justify-center rounded-full h-20 w-[60px] transition-all", isActive ? "bg-white shadow-[0_8px_16px_rgba(0,0,0,0.06)] ring-1 ring-slate-100/50 scale-105" : "bg-white/50 text-slate-600 hover:bg-white/70 backdrop-blur-sm")}
               >
                 <span className={cn("text-xl font-bold tracking-tight", isActive ? "text-cyan-600" : "text-slate-600")}>{item.day}</span>
                 <span className={cn("mt-1 text-[11px] font-bold uppercase", isActive ? "text-slate-500" : "text-slate-500")}>{item.label}</span>
@@ -349,40 +366,54 @@ export function InsightScreen() {
         </div>
 
         <section className="rounded-[36px] bg-white p-3 shadow-[0_16px_40px_rgba(15,23,42,0.06)] ring-1 ring-white/80">
-          <div className="space-y-1">
-            {[
-              { name: "Amlodipine", note: "5mg", time: "8:00am", status: "Morning", statusColor: "bg-emerald-500 text-white", iconCol: "bg-cyan-50 text-cyan-600" },
-              { name: "Captopril", note: "25mg", time: "6:00pm", status: "Evening", statusColor: "bg-emerald-500 text-white", iconCol: "bg-cyan-50 text-cyan-600" },
-            ].map((med, i) => (
-              <div key={i} className="flex items-center justify-between rounded-[28px] p-3 transition-colors hover:bg-slate-50">
-                <div className="flex items-center gap-4">
-                  <div className={cn("flex h-[52px] w-[52px] items-center justify-center rounded-[20px]", med.iconCol)}>
-                    <Icon name="pill" className="h-6 w-6" />
+          <div className="mb-4 flex gap-1 rounded-2xl bg-slate-50 p-1.5">
+            {["morning", "afternoon", "evening"].map((t) => (
+              <button
+                key={t}
+                onClick={() => setActiveTime(t as any)}
+                className={cn("flex-1 rounded-xl py-2 text-[12px] font-bold transition-all capitalize", activeTime === t ? "bg-white text-cyan-600 shadow-sm" : "text-slate-400 hover:text-slate-600")}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+
+          <div className="space-y-1 min-h-[220px]">
+            {currentMeds.length > 0 ? (
+              currentMeds.map((med: any) => (
+                <div key={med.id} className="flex items-center justify-between rounded-[28px] p-3 transition-colors hover:bg-slate-50">
+                  <div className="flex items-center gap-4">
+                    <div className={cn("flex h-[52px] w-[52px] items-center justify-center rounded-[20px] transition-colors", med.taken ? "bg-emerald-50 text-emerald-500" : "bg-cyan-50 text-cyan-600")}>
+                      <Icon name="pill" className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className={cn("text-[16px] font-bold tracking-tight", med.taken ? "text-slate-400 line-through" : "text-slate-800")}>{med.name}</p>
+                      <p className="text-[11px] font-bold text-slate-400 lowercase tracking-wide">{med.dosage}</p>
+                    </div>
                   </div>
-                  <div className="flex flex-col items-start pt-1">
-                    <p className="text-[16px] font-bold text-slate-800 tracking-tight">{med.name}</p>
-                    {med.note ? (
-                      <p className="text-[11px] font-bold text-slate-400 lowercase tracking-wide">{med.note}</p>
-                    ) : (
-                      <svg className="mt-1 h-2 w-8 text-slate-300" viewBox="0 0 40 10" preserveAspectRatio="none">
-                        <path d="M0 5 Q 5 0, 10 5 T 20 5 T 30 5 T 40 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <button 
+                    onClick={() => toggleMed(med.id)}
+                    className={cn("flex h-10 w-10 items-center justify-center rounded-full transition-all ring-1 active:scale-95", med.taken ? "bg-emerald-500 text-white ring-emerald-500 border-none" : "bg-white text-slate-300 ring-slate-100")}
+                  >
+                    {med.taken ? (
+                      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="3.5">
+                        <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
+                    ) : (
+                      <div className="h-2 w-2 rounded-full bg-slate-100" />
                     )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 pr-1">
-                  <div className="flex flex-col items-center min-w-[60px]">
-                    <span className={cn("rounded-md px-2.5 py-[3px] text-[9px] font-bold uppercase tracking-wider", med.statusColor)}>
-                      {med.status}
-                    </span>
-                    <p className="mt-1.5 text-[13px] font-bold text-slate-800 tracking-tight">{med.time}</p>
-                  </div>
-                  <button className="flex h-8 w-8 items-center justify-center text-cyan-500 transition-active active:scale-95">
-                    <Icon name="plus" className="h-5 w-5" />
                   </button>
                 </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center pt-10 text-center opacity-40">
+                <div className="mb-3 rounded-full bg-slate-100 p-4">
+                  <Icon name="pill" className="h-6 w-6 text-slate-400" />
+                </div>
+                <p className="text-sm font-semibold text-slate-600">No intake scheduled</p>
+                <p className="text-xs text-slate-400">Rest up and stay hydrated!</p>
               </div>
-            ))}
+            )}
           </div>
           
           <div className="mt-6 mb-2 flex justify-center gap-3 relative z-10">
