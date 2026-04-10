@@ -274,6 +274,55 @@ export function InsightScreen() {
   const dragStartScroll = useRef(0);
   const isDragging = useRef(false);
 
+  const [explainingMed, setExplainingMed] = useState<any | null>(null);
+
+  const medExplanations: Record<string, any> = {
+    "Amlodipine": {
+      category: "Blood Pressure",
+      purpose: "Relaxes blood vessels to lower blood pressure and improve blood flow.",
+      why: "It helps prevent heart attacks, strokes, and kidney problems by keeping your arteries 'soft' and open.",
+      tips: [
+        "Take at the same time every day for the best results.",
+        "Check for ankle swelling (common but harmless side effect).",
+        "Rise slowly from sitting to avoid a 'head rush' or dizziness."
+      ],
+      fastFact: "This is a 'Calcium Channel Blocker' that won't slow down your heart rate."
+    },
+    "Captopril": {
+      category: "Heart & Blood Pressure",
+      purpose: "An ACE inhibitor that helps blood vessels relax and widen.",
+      why: "Helps your heart pump blood more easily and protects your kidneys, especially important for diabetic health.",
+      tips: [
+        "Best taken 1 hour before a meal on an empty stomach.",
+        "Inform your doctor if you develop a dry, persistent cough.",
+        "Stay hydrated as it helps the medication work better."
+      ],
+      fastFact: "Captopril is fast-acting, starting its work within 15-30 minutes."
+    },
+    "Metformin": {
+      category: "Blood Sugar",
+      purpose: "Improves how your body responds to insulin and reduces liver sugar production.",
+      why: "Keeps your energy levels stable and protects your heart and organs from high sugar damage.",
+      tips: [
+        "ALWAYS take with food to avoid an upset stomach.",
+        "Drink plenty of water throughout the day.",
+        "It doesn't cause 'low blood sugar' (hypoglycemia) when used on its own."
+      ],
+      fastFact: "Metformin is considered the 'gold standard' for long-term sugar management."
+    },
+    "Dopamet": {
+      category: "Blood Pressure",
+      purpose: "Works on the central nervous system to relax blood vessels.",
+      why: "Effectively manages blood pressure when other common types might not be suitable.",
+      tips: [
+        "May cause drowsiness initially; take your time when starting a new dose.",
+        "Dry mouth is common; stay hydrated or use sugarless gum.",
+        "Don't stop taking it suddenly without consulting your doctor."
+      ],
+      fastFact: "This medication is highly trusted for its well-established safety profile."
+    }
+  };
+
   const defaultMandatory = [
     { id: "1", name: "Amlodipine", dosage: "5mg", intakes: { morning: false, afternoon: false, evening: false } },
     { id: "2", name: "Captopril", dosage: "25mg", intakes: { morning: false, afternoon: false, evening: false } },
@@ -444,17 +493,28 @@ export function InsightScreen() {
               currentMeds.map((med: any) => {
                 const isAllTaken = med.intakes.morning && med.intakes.afternoon && med.intakes.evening;
                 return (
-                  <div key={med.id} className="flex items-center justify-between rounded-[28px] p-3 transition-colors hover:bg-slate-50 border border-transparent hover:border-slate-100">
-                    <div className="flex items-center gap-4">
+                  <div 
+                    key={med.id} 
+                    className="flex items-center justify-between rounded-[28px] transition-colors hover:bg-slate-50 border border-transparent hover:border-slate-100 group"
+                  >
+                    <div 
+                      onClick={() => setExplainingMed(med)}
+                      className="flex flex-1 items-center gap-4 p-3 cursor-pointer active:scale-[0.97] transition-all origin-left"
+                    >
                       <div className={cn("flex h-[52px] w-[52px] items-center justify-center rounded-[20px] transition-colors", isAllTaken ? "bg-emerald-50 text-emerald-500" : "bg-cyan-50 text-cyan-600")}>
                         <Icon name="pill" className="h-6 w-6" />
                       </div>
                       <div>
-                        <p className={cn("text-[16px] font-bold tracking-tight", isAllTaken ? "text-slate-500 line-through" : "text-slate-800")}>{med.name}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className={cn("text-[16px] font-bold tracking-tight", isAllTaken ? "text-slate-500 line-through" : "text-slate-800")}>{med.name}</p>
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-100 px-1.5 py-0.5 rounded-md">
+                            <Icon name="spark" className="h-3 w-3 text-cyan-500" />
+                          </div>
+                        </div>
                         <p className="text-[11px] font-bold text-slate-400 lowercase tracking-wide">{med.dosage}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 p-3">
                       {(["morning", "afternoon", "evening"] as const).map((time) => {
                         const isTaken = med.intakes[time];
                         const colors = {
@@ -484,7 +544,7 @@ export function InsightScreen() {
                             key={time}
                             onClick={() => toggleMandatoryMed(med.id, time)}
                             className={cn(
-                              "flex h-9 w-9 items-center justify-center rounded-full text-[13px] font-bold transition-all active:scale-95",
+                              "flex h-9 w-9 items-center justify-center rounded-full text-[13px] font-bold transition-all active:scale-90",
                               colors[time]
                             )}
                           >
@@ -518,40 +578,158 @@ export function InsightScreen() {
           <h3 className="px-4 py-2 text-sm font-bold text-slate-400 uppercase tracking-wider">Optional Medication</h3>
           <div className="space-y-1">
             {optionalMeds.map((med: any) => (
-              <div key={med.id} className="flex items-center justify-between rounded-[28px] p-3 transition-colors hover:bg-slate-50 border border-transparent hover:border-slate-100">
-                <div className="flex items-center gap-4">
+              <div 
+                key={med.id} 
+                className="flex items-center justify-between rounded-[28px] transition-colors hover:bg-slate-50 border border-transparent hover:border-slate-100 group"
+              >
+                <div 
+                  onClick={() => setExplainingMed(med)}
+                  className="flex flex-1 items-center gap-4 p-3 cursor-pointer active:scale-[0.97] transition-all origin-left"
+                >
                   <div className={cn("flex h-[52px] w-[52px] items-center justify-center rounded-[20px] transition-colors", med.taken ? "bg-emerald-50 text-emerald-500" : "bg-slate-50 text-slate-400")}>
                     <Icon name="pill" className="h-6 w-6" />
                   </div>
                   <div>
-                    <p className={cn("text-[16px] font-bold tracking-tight", med.taken ? "text-slate-400 line-through" : "text-slate-800")}>{med.name}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className={cn("text-[16px] font-bold tracking-tight", med.taken ? "text-slate-400 line-through" : "text-slate-800")}>{med.name}</p>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-100 px-1.5 py-0.5 rounded-md">
+                        <Icon name="spark" className="h-3 w-3 text-cyan-500" />
+                      </div>
+                    </div>
                     <p className="text-[11px] font-bold text-slate-400 lowercase tracking-wide">{med.dosage}</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => toggleOptionalMed(med.id)}
-                  className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-full text-lg font-bold transition-all active:scale-95",
-                    med.taken ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/30" : "bg-slate-50 text-slate-400 hover:bg-slate-100"
-                  )}
-                >
-                  {med.taken ? (
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="4">
-                      <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  ) : (
-                    "+"
-                  )}
-                </button>
+                <div className="p-3">
+                  <button
+                    onClick={() => toggleOptionalMed(med.id)}
+                    className={cn(
+                      "flex h-9 w-9 items-center justify-center rounded-full text-lg font-bold transition-all active:scale-90",
+                      med.taken ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/30" : "bg-slate-50 text-slate-400 hover:bg-slate-100"
+                    )}
+                  >
+                    {med.taken ? (
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="4">
+                        <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    ) : (
+                      "+"
+                    )}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
 
         </section>
       </div>
+
+      {explainingMed && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300" onClick={() => setExplainingMed(null)} />
+          <div className="relative w-full max-w-lg overflow-hidden rounded-t-[40px] sm:rounded-[40px] bg-white shadow-[0_-24px_80px_rgba(15,23,42,0.25)] animate-in slide-in-from-bottom duration-500 ease-out-expo border-t border-white/20 sm:border-none">
+            <div className="h-1.5 w-12 bg-slate-200 rounded-full mx-auto mt-3 mb-1 sm:hidden opacity-50" />
+            
+            <div className="relative h-44 w-full overflow-hidden">
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,#0891b2_0%,#3b82f6_100%)]" />
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-0 left-0 h-full w-full bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.4)_0%,transparent_50%)]" />
+              </div>
+              
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-white pb-4">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-white/20 backdrop-blur-xl shadow-xl ring-1 ring-white/30">
+                  <Icon name="pill" className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-3xl font-extrabold tracking-tight drop-shadow-md">{explainingMed.name}</h3>
+                <div className="mt-2 flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 backdrop-blur-md ring-1 ring-white/20">
+                  <div className="h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
+                  <span className="text-[11px] font-bold uppercase tracking-widest">{medExplanations[explainingMed.name]?.category || "General Health"}</span>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setExplainingMed(null)}
+                className="absolute top-6 right-6 flex h-10 w-10 items-center justify-center rounded-full bg-black/10 text-white hover:bg-black/20 backdrop-blur-xl transition-all border border-white/10 active:scale-95"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                  <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="px-7 py-8 space-y-8 max-h-[60vh] overflow-y-auto [scrollbar-width:none]">
+              <div className="flex items-start gap-4 p-5 rounded-[28px] bg-slate-50 border border-slate-100/80">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-600 shadow-inner">
+                  <Icon name="spark" className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-cyan-600 uppercase tracking-[0.15em] mb-1">AI Health Assistant</p>
+                  <p className="text-[15px] font-medium leading-relaxed text-slate-700">
+                    {medExplanations[explainingMed.name]?.purpose || "This medication is part of your wellness plan."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6">
+                <section>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="h-1.5 w-1.5 rounded-full bg-cyan-500" />
+                    <h4 className="text-sm font-bold text-slate-900 tracking-tight">Why you take this</h4>
+                  </div>
+                  <p className="text-[14px] leading-relaxed text-slate-500 font-medium pl-3.5 ml-0.5 border-l border-slate-200">
+                    {medExplanations[explainingMed.name]?.why || "To maintain your body's natural balance and support your long-term health goals."}
+                  </p>
+                </section>
+
+                <section>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <h4 className="text-sm font-bold text-slate-900 tracking-tight">Patient Tips</h4>
+                  </div>
+                  <ul className="space-y-3.5">
+                    {(medExplanations[explainingMed.name]?.tips || [
+                      "Take as directed by your healthcare provider.",
+                      "Keep out of reach of children.",
+                      "Store in a cool, dry place."
+                    ]).map((tip: string, i: number) => (
+                      <li key={i} className="flex items-start gap-3.5 group">
+                        <div className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="h-2.5 w-2.5">
+                            <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </div>
+                        <span className="text-[14px] font-semibold text-slate-600 group-hover:text-slate-900 transition-colors leading-snug">{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              </div>
+
+              <div className="rounded-[30px] p-6 bg-amber-50/50 border border-amber-100/60 transition-colors hover:bg-amber-50">
+                <div className="flex items-center gap-2.5 mb-2.5">
+                  <div className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                  <p className="text-[11px] font-black uppercase text-amber-600 tracking-wider">Fast Fact</p>
+                </div>
+                <p className="text-[13px] font-bold italic text-amber-900/70 leading-relaxed">
+                  "{medExplanations[explainingMed.name]?.fastFact || "Consistent use is the key to managing your condition effectively."}"
+                </p>
+              </div>
+            </div>
+
+            <div className="p-7">
+              <button 
+                onClick={() => setExplainingMed(null)}
+                className="w-full rounded-[24px] bg-slate-900 py-5 text-[15px] font-bold text-white shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-all hover:bg-slate-800"
+              >
+                Got it, thank you!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 export function TrendsScreen() {
   return (
