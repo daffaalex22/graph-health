@@ -48,7 +48,7 @@ const POINT_GAP = 96;
 const VISIBLE_POINT_COUNT = 5;
 
 export function LabResultsChart() {
-  const [activeType, setActiveType] = useState<LabType>("Ureum");
+  const [selectedTypes, setSelectedTypes] = useState<LabType[]>(["Ureum"]);
   const [selectedIndex, setSelectedIndex] = useState(labData["Ureum"].length - 1);
   const [scrollLeft, setScrollLeft] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -58,9 +58,7 @@ export function LabResultsChart() {
   const uMeta = labMeta.Ureum;
   const cMeta = labMeta.Creatinine;
   
-  const activeData = labData[activeType];
-  const activeMeta = labMeta[activeType];
-  const selectedPoint = activeData[selectedIndex] ?? activeData[0];
+  const selectedPoint = uData[selectedIndex] ?? uData[0];
   
   const chartWidth = LEFT_PAD + RIGHT_PAD + POINT_GAP * Math.max(uData.length - 1, 1);
   const maxWindowStart = Math.max(uData.length - VISIBLE_POINT_COUNT, 0);
@@ -93,9 +91,6 @@ export function LabResultsChart() {
   }, [cData, cMaxValue, cMinValue, innerHeight]);
   const cThresholdY = TOP_PAD + ((cMaxValue - cMeta.normalMax) / Math.max(cMaxValue - cMinValue, 1)) * innerHeight;
 
-  const isHigh = selectedPoint.value > activeMeta.normalMax;
-  const isLow = selectedPoint.value < activeMeta.normalMin;
-
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
@@ -109,7 +104,7 @@ export function LabResultsChart() {
     Math.max(Math.round(scrollLeft / POINT_GAP), 0),
     maxWindowStart,
   );
-  const viewportPoints = activeData.slice(viewportStart, viewportStart + VISIBLE_POINT_COUNT);
+  const viewportPoints = uData.slice(viewportStart, viewportStart + VISIBLE_POINT_COUNT);
   const activeViewportIndex = Math.min(
     Math.max(selectedIndex - viewportStart, 0),
     Math.max(viewportPoints.length - 1, 0),
@@ -286,7 +281,7 @@ export function LabResultsChart() {
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center gap-2 rounded-full bg-slate-100/80 px-4 py-2 text-[11px] font-bold text-slate-700 ring-1 ring-slate-200/50 transition-all active:scale-95"
           >
-            {activeType}
+            {selectedTypes.length === 0 ? "Select results" : selectedTypes.length === 2 ? "All Labs" : selectedTypes[0]}
             <svg
               className={`h-3 w-3 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
               fill="none"
@@ -299,20 +294,58 @@ export function LabResultsChart() {
           </button>
           
           {isOpen && (
-            <div className="absolute right-0 top-full z-50 mt-2 w-36 overflow-hidden rounded-2xl bg-white p-1.5 shadow-[0_20px_40px_rgba(15,23,42,0.15)] ring-1 ring-slate-100 backdrop-blur-xl animate-in fade-in zoom-in duration-200">
-              {(["Ureum", "Creatinine"] as const).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => {
-                    setActiveType(type);
-                    setSelectedIndex(labData[type].length - 1);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full rounded-xl px-4 py-2 text-left text-[11px] font-bold transition-colors ${activeType === type ? "bg-slate-50 text-slate-900" : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"}`}
-                >
-                  {type}
-                </button>
-              ))}
+            <div className="absolute right-0 top-full z-50 mt-2 w-40 overflow-hidden rounded-2xl bg-white p-1.5 shadow-[0_20px_40px_rgba(15,23,42,0.15)] ring-1 ring-slate-100 backdrop-blur-xl animate-in fade-in zoom-in duration-200">
+              <button
+                onClick={() => {
+                  if (selectedTypes.length === 2) {
+                    setSelectedTypes([]);
+                  } else {
+                    setSelectedTypes(["Ureum", "Creatinine"]);
+                  }
+                }}
+                className="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-left text-[11px] font-bold transition-colors hover:bg-slate-50"
+              >
+                <span className={selectedTypes.length === 2 ? "text-slate-900" : "text-slate-500"}>All Labs</span>
+                <div className={cn(
+                  "flex h-4 w-4 items-center justify-center rounded-md border-2 transition-all",
+                  selectedTypes.length === 2 ? "bg-rose-500 border-rose-500" : "border-slate-200"
+                )}>
+                  {selectedTypes.length === 2 && (
+                    <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+              </button>
+              <div className="my-1 h-px w-full bg-slate-100" />
+              {(["Ureum", "Creatinine"] as const).map((type) => {
+                const isSelected = selectedTypes.includes(type);
+                return (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      setSelectedTypes(prev => 
+                        isSelected 
+                          ? prev.filter(t => t !== type) 
+                          : [...prev, type]
+                      );
+                    }}
+                    className="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-left text-[11px] font-bold transition-colors hover:bg-slate-50"
+                  >
+                    <span className={isSelected ? "text-slate-900" : "text-slate-500"}>{type}</span>
+                    <div className={cn(
+                      "flex h-4 w-4 items-center justify-center rounded-md border-2 transition-all",
+                      isSelected ? "bg-rose-500 border-rose-500" : "border-slate-200"
+                    )}>
+                      {isSelected && (
+                        <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -331,11 +364,18 @@ export function LabResultsChart() {
         onTouchEnd={stopDragging}
       >
         <div className="min-w-full flex flex-col" style={{ width: `${chartWidth}px` }}>
-          {renderSvg("Ureum", uPoints, uMeta, uThresholdY)}
-          <div className="flex items-center px-4 my-2 opacity-50 z-10 pointer-events-none">
-             <div className="h-px w-full bg-slate-200"></div>
-          </div>
-          {renderSvg("Creatinine", cPoints, cMeta, cThresholdY)}
+          {selectedTypes.includes("Ureum") && renderSvg("Ureum", uPoints, uMeta, uThresholdY)}
+          {selectedTypes.length === 2 && (
+            <div className="flex items-center px-4 my-2 opacity-50 z-10 pointer-events-none">
+               <div className="h-px w-full bg-slate-200"></div>
+            </div>
+          )}
+          {selectedTypes.includes("Creatinine") && renderSvg("Creatinine", cPoints, cMeta, cThresholdY)}
+          {selectedTypes.length === 0 && (
+            <div className="flex h-44 items-center justify-center">
+              <p className="text-sm font-medium text-slate-400">Select a lab result to view trends</p>
+            </div>
+          )}
         </div>
       </div>
 
