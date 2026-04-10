@@ -33,7 +33,7 @@ export function HomeScreen() {
 
           <div className="mt-4 flex items-start justify-between gap-3">
             <div>
-              <p className="text-[1.65rem] leading-none font-semibold text-slate-900">Daniel Kim, 63</p>
+              <p className="text-[1.65rem] leading-none font-semibold text-slate-900">Daniel Kim, 63 y.o.</p>
               <p className="mt-3 text-sm text-slate-500">BP rising for 3 days</p>
               <p className="mt-2 text-[2.1rem] leading-none font-semibold text-rose-600">148 / 95</p>
               <p className="mt-2 text-xs text-slate-500">Today, 8:45 AM</p>
