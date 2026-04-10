@@ -10,6 +10,8 @@ function cn(...parts: Array<string | false | null | undefined>) {
 }
 
 export function HomeScreen() {
+  const [isDiagnosisOpen, setIsDiagnosisOpen] = useState(false);
+
   return (
     <div className="pb-28">
       <Header title="GraphHealth" />
@@ -26,7 +28,6 @@ export function HomeScreen() {
                 <p className="text-xs text-slate-500">Action Required</p>
               </div>
             </div>
-            <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold text-rose-500">ESRD</span>
           </div>
 
           <div className="mt-4 flex items-start justify-between gap-3">
@@ -52,6 +53,51 @@ export function HomeScreen() {
             </div>
           </div>
         </section>
+
+        <section className="rounded-[26px] bg-white/86 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
+          <p className="mb-3 text-sm font-semibold text-slate-900">Diagnosis</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-rose-50 px-3 py-1.5 text-xs font-bold tracking-wide text-rose-600 shadow-sm ring-1 ring-rose-100">End-Stage Renal Disease</span>
+            <span className="rounded-full bg-rose-50 px-3 py-1.5 text-xs font-bold tracking-wide text-rose-600 shadow-sm ring-1 ring-rose-100">Hypertension</span>
+            <button onClick={() => setIsDiagnosisOpen(true)} className="rounded-full bg-slate-50 px-4 py-1 text-xs font-bold tracking-wide text-slate-500 shadow-sm ring-1 ring-slate-200 transition-colors hover:bg-slate-100">+1</button>
+          </div>
+        </section>
+
+        {isDiagnosisOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-sm" onClick={() => setIsDiagnosisOpen(false)} />
+            <div className="relative w-full max-w-sm rounded-[32px] bg-white/95 p-6 shadow-[0_24px_48px_rgba(15,23,42,0.12)] ring-1 ring-slate-100 backdrop-blur-xl animate-in fade-in zoom-in duration-200">
+              <div className="mb-5 flex items-center justify-between">
+                <h3 className="text-xl font-bold text-slate-900">Patient Diagnoses</h3>
+                <button onClick={() => setIsDiagnosisOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                    <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="space-y-3">
+                <div className="rounded-[22px] bg-rose-50 p-4 ring-1 ring-rose-100/50">
+                  <p className="font-bold text-rose-700">End-Stage Renal Disease (ESRD)</p>
+                  <p className="mt-1 text-xs font-medium text-rose-600/80">Diagnosed: Oct 2024</p>
+                </div>
+                <div className="rounded-[22px] bg-rose-50 p-4 ring-1 ring-rose-100/50">
+                  <p className="font-bold text-rose-700">Hypertension</p>
+                  <p className="mt-1 text-xs font-medium text-rose-600/80">Diagnosed: Jan 2023</p>
+                </div>
+                <div className="rounded-[22px] bg-amber-50 p-4 ring-1 ring-amber-100/50">
+                  <p className="font-bold text-amber-700">Bronchitis</p>
+                  <p className="mt-1 text-xs font-medium text-amber-600/80">Diagnosed: Mar 2021</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsDiagnosisOpen(false)}
+                className="mt-6 w-full rounded-[20px] bg-slate-100 py-3 text-sm font-bold text-slate-600 hover:bg-slate-200 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
 
         <section className="rounded-[26px] bg-white/86 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
           <div className="flex items-center justify-between">
