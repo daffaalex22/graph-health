@@ -230,18 +230,27 @@ export function InsightScreen() {
   const dragStartScroll = useRef(0);
   const isDragging = useRef(false);
 
-  const defaultMeds = [
+  const defaultMandatory = [
     { id: "1", name: "Amlodipine", dosage: "5mg", intakes: { morning: false, afternoon: false, evening: false } },
     { id: "2", name: "Captopril", dosage: "25mg", intakes: { morning: false, afternoon: false, evening: false } },
     { id: "3", name: "Metformin", dosage: "500mg", intakes: { morning: false, afternoon: false, evening: false } },
   ];
 
-  const [medsStatus, setMedsStatus] = useState<Record<string, any>>({
-    "May 8": [
-      { id: "1", name: "Amlodipine", dosage: "5mg", intakes: { morning: true, afternoon: false, evening: false } },
-      { id: "2", name: "Captopril", dosage: "25mg", intakes: { morning: false, afternoon: false, evening: false } },
-      { id: "3", name: "Metformin", dosage: "500mg", intakes: { morning: true, afternoon: true, evening: false } },
-    ]
+  const defaultOptional = [
+    { id: "o1", name: "Dopamet", dosage: "250mg", taken: false },
+  ];
+
+  const [medsStatus, setMedsStatus] = useState<Record<string, { mandatory: any[], optional: any[] }>>({
+    "May 8": {
+      mandatory: [
+        { id: "1", name: "Amlodipine", dosage: "5mg", intakes: { morning: true, afternoon: false, evening: false } },
+        { id: "2", name: "Captopril", dosage: "25mg", intakes: { morning: false, afternoon: false, evening: false } },
+        { id: "3", name: "Metformin", dosage: "500mg", intakes: { morning: true, afternoon: true, evening: false } },
+      ],
+      optional: [
+        { id: "o1", name: "Dopamet", dosage: "250mg", taken: false },
+      ]
+    }
   });
 
   function handlePointerDown(clientX: number) {
@@ -264,10 +273,10 @@ export function InsightScreen() {
     isDragging.current = false;
   }
 
-  function toggleMed(id: string, time: "morning" | "afternoon" | "evening") {
+  function toggleMandatoryMed(id: string, time: "morning" | "afternoon" | "evening") {
     setMedsStatus(prev => {
-      const currentDayData = prev[activeDate] || defaultMeds;
-      const updatedList = currentDayData.map((m: any) => 
+      const currentDayData = prev[activeDate] || { mandatory: defaultMandatory, optional: defaultOptional };
+      const updatedList = currentDayData.mandatory.map((m: any) => 
         m.id === id ? { 
           ...m, 
           intakes: {
@@ -278,7 +287,20 @@ export function InsightScreen() {
       );
       return {
         ...prev,
-        [activeDate]: updatedList
+        [activeDate]: { ...currentDayData, mandatory: updatedList }
+      };
+    });
+  }
+
+  function toggleOptionalMed(id: string) {
+    setMedsStatus(prev => {
+      const currentDayData = prev[activeDate] || { mandatory: defaultMandatory, optional: defaultOptional };
+      const updatedList = currentDayData.optional.map((m: any) => 
+        m.id === id ? { ...m, taken: !m.taken } : m
+      );
+      return {
+        ...prev,
+        [activeDate]: { ...currentDayData, optional: updatedList }
       };
     });
   }
@@ -299,7 +321,9 @@ export function InsightScreen() {
   }
 
   const scheduleDays = getDaysForMonth(selectedMonth);
-  const currentMeds = medsStatus[activeDate] || defaultMeds;
+  const currentDayData = medsStatus[activeDate] || { mandatory: defaultMandatory, optional: defaultOptional };
+  const currentMeds = currentDayData.mandatory;
+  const optionalMeds = currentDayData.optional;
 
   return (
     <div className="pb-28 min-h-screen relative overflow-hidden">
@@ -412,7 +436,7 @@ export function InsightScreen() {
                         return (
                           <button
                             key={time}
-                            onClick={() => toggleMed(med.id, time)}
+                            onClick={() => toggleMandatoryMed(med.id, time)}
                             className={cn(
                               "flex h-9 w-9 items-center justify-center rounded-full text-[13px] font-bold transition-all active:scale-95",
                               colors[time]
@@ -441,6 +465,40 @@ export function InsightScreen() {
                 <p className="text-xs text-slate-400">Rest up and stay hydrated!</p>
               </div>
             )}
+          </div>
+        </section>
+
+        <section className="rounded-[36px] bg-white p-3 shadow-[0_16px_40px_rgba(15,23,42,0.06)] ring-1 ring-white/80">
+          <h3 className="px-4 py-2 text-sm font-bold text-slate-400 uppercase tracking-wider">Optional Medication</h3>
+          <div className="space-y-1">
+            {optionalMeds.map((med: any) => (
+              <div key={med.id} className="flex items-center justify-between rounded-[28px] p-3 transition-colors hover:bg-slate-50 border border-transparent hover:border-slate-100">
+                <div className="flex items-center gap-4">
+                  <div className={cn("flex h-[52px] w-[52px] items-center justify-center rounded-[20px] transition-colors", med.taken ? "bg-emerald-50 text-emerald-500" : "bg-slate-50 text-slate-400")}>
+                    <Icon name="pill" className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className={cn("text-[16px] font-bold tracking-tight", med.taken ? "text-slate-400 line-through" : "text-slate-800")}>{med.name}</p>
+                    <p className="text-[11px] font-bold text-slate-400 lowercase tracking-wide">{med.dosage}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => toggleOptionalMed(med.id)}
+                  className={cn(
+                    "flex h-9 w-9 items-center justify-center rounded-full text-lg font-bold transition-all active:scale-95",
+                    med.taken ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/30" : "bg-slate-50 text-slate-400 hover:bg-slate-100"
+                  )}
+                >
+                  {med.taken ? (
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="4">
+                      <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  ) : (
+                    "+"
+                  )}
+                </button>
+              </div>
+            ))}
           </div>
 
         </section>
