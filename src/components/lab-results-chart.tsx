@@ -53,56 +53,63 @@ export function LabResultsChart() {
   const [scrollLeft, setScrollLeft] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   
-  const currentData = labData[activeType];
-  const meta = labMeta[activeType];
-  const selectedPoint = currentData[selectedIndex] ?? currentData[0];
-  const chartWidth = LEFT_PAD + RIGHT_PAD + POINT_GAP * Math.max(currentData.length - 1, 1);
-  const maxWindowStart = Math.max(currentData.length - VISIBLE_POINT_COUNT, 0);
+  const uData = labData.Ureum;
+  const cData = labData.Creatinine;
+  const uMeta = labMeta.Ureum;
+  const cMeta = labMeta.Creatinine;
+  
+  const activeData = labData[activeType];
+  const activeMeta = labMeta[activeType];
+  const selectedPoint = activeData[selectedIndex] ?? activeData[0];
+  
+  const chartWidth = LEFT_PAD + RIGHT_PAD + POINT_GAP * Math.max(uData.length - 1, 1);
+  const maxWindowStart = Math.max(uData.length - VISIBLE_POINT_COUNT, 0);
 
-  const values = currentData.map((point) => point.value);
-  const minValue = Math.min(...values) * 0.8;
-  const maxValue = Math.max(...values) * 1.2;
   const innerHeight = CHART_HEIGHT - TOP_PAD - BOTTOM_PAD;
 
-  const points = useMemo(() => {
-    return currentData.map((point, index) => {
+  // Ureum Points
+  const uValues = uData.map((point) => point.value);
+  const uMinValue = Math.min(...uValues) * 0.8;
+  const uMaxValue = Math.max(...uValues) * 1.2;
+  const uPoints = useMemo(() => {
+    return uData.map((point, index) => {
       const x = LEFT_PAD + POINT_GAP * index;
-      const y = TOP_PAD + ((maxValue - point.value) / Math.max(maxValue - minValue, 1)) * innerHeight;
+      const y = TOP_PAD + ((uMaxValue - point.value) / Math.max(uMaxValue - uMinValue, 1)) * innerHeight;
       return { ...point, index, x, y };
     });
-  }, [currentData, maxValue, minValue, innerHeight]);
+  }, [uData, uMaxValue, uMinValue, innerHeight]);
+  const uThresholdY = TOP_PAD + ((uMaxValue - uMeta.normalMax) / Math.max(uMaxValue - uMinValue, 1)) * innerHeight;
 
-  const thresholdY = TOP_PAD + ((maxValue - meta.normalMax) / Math.max(maxValue - minValue, 1)) * innerHeight;
+  // Creatinine Points
+  const cValues = cData.map((point) => point.value);
+  const cMinValue = Math.min(...cValues) * 0.8;
+  const cMaxValue = Math.max(...cValues) * 1.2;
+  const cPoints = useMemo(() => {
+    return cData.map((point, index) => {
+      const x = LEFT_PAD + POINT_GAP * index;
+      const y = TOP_PAD + ((cMaxValue - point.value) / Math.max(cMaxValue - cMinValue, 1)) * innerHeight;
+      return { ...point, index, x, y };
+    });
+  }, [cData, cMaxValue, cMinValue, innerHeight]);
+  const cThresholdY = TOP_PAD + ((cMaxValue - cMeta.normalMax) / Math.max(cMaxValue - cMinValue, 1)) * innerHeight;
 
-  const linePath = points
-    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
-    .join(" ");
-
-  const gradientStops = points.map((point) => {
-    let pointColor = point.value >= meta.normalMax ? "#ef4444" : "#10b981";
-    return {
-      offset: `${(point.x / chartWidth) * 100}%`,
-      color: pointColor,
-    };
-  });
-
-  const isHigh = selectedPoint.value > meta.normalMax;
-  const isLow = selectedPoint.value < meta.normalMin;
+  const isHigh = selectedPoint.value > activeMeta.normalMax;
+  const isLow = selectedPoint.value < activeMeta.normalMin;
 
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
-    const targetPoint = points[selectedIndex];
+    const targetPoint = uPoints[selectedIndex];
     if (!targetPoint) return;
     const nextScrollLeft = Math.max(0, targetPoint.x - container.clientWidth / 2);
     container.scrollTo({ left: nextScrollLeft, behavior: "smooth" });
-  }, [points, selectedIndex]);
+  }, [uPoints, selectedIndex]);
 
   const viewportStart = Math.min(
     Math.max(Math.round(scrollLeft / POINT_GAP), 0),
     maxWindowStart,
   );
-  const viewportPoints = currentData.slice(viewportStart, viewportStart + VISIBLE_POINT_COUNT);
+  const viewportPoints = activeData.slice(viewportStart, viewportStart + VISIBLE_POINT_COUNT);
   const activeViewportIndex = Math.min(
     Math.max(selectedIndex - viewportStart, 0),
     Math.max(viewportPoints.length - 1, 0),
@@ -144,6 +151,102 @@ export function LabResultsChart() {
     dragStartX.current = null;
     isDragging.current = false;
   }
+
+  const renderSvg = (type: LabType, points: any[], meta: any, thresholdY: number) => {
+    const linePath = points
+      .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
+      .join(" ");
+
+    const gradientStops = points.map((point) => {
+      let pointColor = point.value >= meta.normalMax ? "#ef4444" : "#10b981";
+      return {
+        offset: `${(point.x / chartWidth) * 100}%`,
+        color: pointColor,
+      };
+    });
+
+    return (
+      <svg viewBox={`0 0 ${chartWidth} ${CHART_HEIGHT}`} className="h-44 w-full">
+        <defs>
+          <linearGradient id={`gradient-${type}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={meta.color} stopOpacity="0.2" />
+            <stop offset="100%" stopColor={meta.color} stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id={`line-gradient-${type}`} x1={LEFT_PAD} y1="0" x2={chartWidth - RIGHT_PAD} y2="0" gradientUnits="userSpaceOnUse">
+            {gradientStops.map((stop, i) => (
+              <stop key={`${stop.offset}-${i}`} offset={stop.offset} stopColor={stop.color} />
+            ))}
+          </linearGradient>
+        </defs>
+
+        <g className="opacity-50">
+          <line
+            x1={0}
+            y1={thresholdY}
+            x2={chartWidth}
+            y2={thresholdY}
+            stroke="#ef4444"
+            strokeWidth="1.5"
+            strokeDasharray="4 4"
+          />
+          <text
+            x={scrollLeft + LEFT_PAD}
+            y={thresholdY - 6}
+            className="text-[9px] font-bold fill-red-500"
+          >
+            Threshold: {meta.normalMax}
+          </text>
+        </g>
+        
+        <text
+          x={scrollLeft + LEFT_PAD}
+          y={14}
+          className="text-[10px] font-bold uppercase tracking-widest fill-slate-500"
+        >
+          {type}
+        </text>
+
+        <path
+          d={`${linePath} L ${points[points.length-1].x} ${CHART_HEIGHT - BOTTOM_PAD} L ${points[0].x} ${CHART_HEIGHT - BOTTOM_PAD} Z`}
+          fill={`url(#gradient-${type})`}
+        />
+
+        <path
+          d={linePath}
+          fill="none"
+          stroke={`url(#line-gradient-${type})`}
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {points.map((point) => {
+          const isSelected = selectedIndex === point.index;
+          let pointColor = point.value >= meta.normalMax ? "#ef4444" : "#10b981";
+          return (
+            <g key={`${point.date}-${point.index}`} onClick={() => setSelectedIndex(point.index)} className="cursor-pointer">
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r={isSelected ? 7 : 4.5}
+                fill={isSelected ? pointColor : "#fff"}
+                stroke={pointColor}
+                strokeWidth="2.5"
+              />
+              <text
+                x={point.x}
+                y={CHART_HEIGHT - 8}
+                textAnchor="middle"
+                className={`text-[10px] font-bold ${isSelected ? "fill-slate-900" : "fill-slate-400"}`}
+              >
+                {point.shortLabel}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    );
+  };
 
   return (
     <section className="rounded-[28px] bg-white/88 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] ring-1 ring-white/80">
@@ -189,7 +292,6 @@ export function LabResultsChart() {
         </div>
       </div>
 
-
       <div
         ref={scrollRef}
         className="mt-4 overflow-x-auto rounded-[24px] bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] p-3 [scrollbar-width:none] touch-pan-x cursor-grab active:cursor-grabbing"
@@ -202,78 +304,12 @@ export function LabResultsChart() {
         onTouchMove={(event) => handlePointerMove(event.touches[0]?.clientX ?? 0)}
         onTouchEnd={stopDragging}
       >
-        <div className="min-w-full" style={{ width: `${chartWidth}px` }}>
-          <svg viewBox={`0 0 ${chartWidth} ${CHART_HEIGHT}`} className="h-44 w-full">
-            <defs>
-              <linearGradient id={`gradient-${activeType}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={meta.color} stopOpacity="0.2" />
-                <stop offset="100%" stopColor={meta.color} stopOpacity="0" />
-              </linearGradient>
-              <linearGradient id={`line-gradient-${activeType}`} x1={LEFT_PAD} y1="0" x2={chartWidth - RIGHT_PAD} y2="0" gradientUnits="userSpaceOnUse">
-                {gradientStops.map((stop) => (
-                  <stop key={stop.offset} offset={stop.offset} stopColor={stop.color} />
-                ))}
-              </linearGradient>
-            </defs>
-
-              <g className="opacity-50">
-                <line
-                  x1={0}
-                  y1={thresholdY}
-                  x2={chartWidth}
-                  y2={thresholdY}
-                  stroke="#ef4444"
-                  strokeWidth="1.5"
-                  strokeDasharray="4 4"
-                />
-                <text
-                  x={scrollLeft + LEFT_PAD}
-                  y={thresholdY - 6}
-                  className="text-[9px] font-bold fill-red-500"
-                >
-                  Threshold: {meta.normalMax}
-                </text>
-              </g>
-            
-            <path
-              d={`${linePath} L ${points[points.length-1].x} ${CHART_HEIGHT - BOTTOM_PAD} L ${points[0].x} ${CHART_HEIGHT - BOTTOM_PAD} Z`}
-              fill={`url(#gradient-${activeType})`}
-            />
-
-            <path
-              d={linePath}
-              fill="none"
-              stroke={`url(#line-gradient-${activeType})`}
-              strokeWidth="3.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-
-            {points.map((point) => {
-              const isSelected = selectedIndex === point.index;
-              let pointColor = point.value >= meta.normalMax ? "#ef4444" : "#10b981";
-              return (
-                <g key={`${point.date}-${point.index}`} onClick={() => setSelectedIndex(point.index)} className="cursor-pointer">
-                  <circle
-                    cx={point.x}
-                    cy={point.y}
-                    r={isSelected ? 7 : 4.5}
-                    fill={isSelected ? pointColor : "#fff"}
-                    stroke={pointColor}
-                    strokeWidth="2.5"
-                  />
-                  <text
-                    x={point.x}
-                    y={CHART_HEIGHT - 8}
-                    textAnchor="middle"
-                    className={`text-[10px] font-bold ${isSelected ? "fill-slate-900" : "fill-slate-400"}`}
-                  >
-                    {point.shortLabel}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
+        <div className="min-w-full flex flex-col" style={{ width: `${chartWidth}px` }}>
+          {renderSvg("Ureum", uPoints, uMeta, uThresholdY)}
+          <div className="flex items-center px-4 my-2 opacity-50 z-10 pointer-events-none">
+             <div className="h-px w-full bg-slate-200"></div>
+          </div>
+          {renderSvg("Creatinine", cPoints, cMeta, cThresholdY)}
         </div>
       </div>
 
@@ -322,7 +358,7 @@ export function LabResultsChart() {
           <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">{activeType} Level</p>
           <div className="mt-1 flex items-baseline gap-1.5">
             <p className="text-xl font-bold text-slate-900">{selectedPoint.value}</p>
-            <p className="text-xs font-medium text-slate-400">{meta.unit}</p>
+            <p className="text-xs font-medium text-slate-400">{activeMeta.unit}</p>
           </div>
         </div>
         <div className={`rounded-xl px-3 py-1.5 text-[11px] font-bold ring-1 ${isHigh ? "bg-rose-50 text-rose-600 ring-rose-100" : isLow ? "bg-amber-50 text-amber-600 ring-amber-100" : "bg-emerald-50 text-emerald-600 ring-emerald-100"}`}>
