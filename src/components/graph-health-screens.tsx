@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { Header, Icon, StatusBadge } from "@/components/graph-health-app";
 import { TrendsChart } from "@/components/trends-chart";
+import { LabResultsChart } from "@/components/lab-results-chart";
 
 function cn(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(" ");
@@ -561,6 +562,7 @@ export function TrendsScreen() {
       <Header title="GraphHealth" />
       <div className="space-y-4 px-4">
         <TrendsChart />
+        <LabResultsChart />
       </div>
     </div>
   );
